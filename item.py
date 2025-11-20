@@ -74,3 +74,11 @@ class Statue(Item):
     def interact(self):
         print("statue")
         self.is_finished = True
+
+
+
+#same for each level
+class Door(Item):
+    def interact(self):
+        self.is_finished = True
+        
