@@ -13,11 +13,13 @@ class Level:
                 Crate("crate", "crate.png", (200, 400), (.5, .5),True, False),
                 Statue("statue", "statue.png", (1000, 0)),    
             ]
+            #class(name,address,pos (center=0,0),size (* scale), collision, interactable)
             self.background = pygame.image.load("background.png")
         elif level_id == 2:
             self.items = [
                 Door("door", "door.png", (0, 0), (1,1),False, False),
             ]  
+            #make sure to change the address for door, pos,size, and change if you want it to have collision
             self.background = pygame.image.load("background.png")
         elif level_id == 3:
             self.items = [
@@ -59,3 +61,4 @@ class Level:
             if item.collides_with(player_rect) and item.collision==True:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
