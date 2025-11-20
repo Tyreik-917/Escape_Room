@@ -1,10 +1,12 @@
 import pygame
 import time
 from item import Item, Crate, Table, Statue
-
+width, height = 1920, 1080
+center_x, center_y = width//2, height//2
 class Player:
     def __init__(self, x, y, sprite_size=128):
-        self.rect = pygame.Rect(x, y, sprite_size, sprite_size)
+        self.rect = pygame.Rect(0, 0, sprite_size, sprite_size)
+        self.rect.center = (x, y)
         self.speed = 5
 
         # animation
@@ -46,6 +48,17 @@ class Player:
             self.rect.x += self.speed
             self.moving = True
             self.facing_right = True
+    
+        top_limit = 200
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > width:
+            self.rect.right = width
+        if self.rect.top < top_limit:
+            self.rect.top = top_limit
+        if self.rect.bottom > height:
+            self.rect.bottom = height
+            
 
         return old  # return previous position for collision revert
 
@@ -73,7 +86,7 @@ class Player:
             return
 
         for item in items:
-            if item.is_active and item.is_near(self.rect):
+            if item.is_active and item.is_near(self.rect) and item.interactable:
                 item.interact()
                 self.last_interact = now
                 break
