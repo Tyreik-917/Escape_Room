@@ -17,7 +17,7 @@ class Level:
             self.items = [
                 
             ]  
-            self.background = pygame.image.load("background.png")
+            self.background = pygame.image.load("bedroom.png")
         elif level_id == 3:
             self.items = [
 
@@ -43,3 +43,4 @@ class Level:
             if item.collides_with(player_rect) and item.collision==True:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
