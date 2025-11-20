@@ -32,13 +32,7 @@ class Level:
             ]  
             self.background = pygame.image.load("background.png")
 
-    '''
-    def is_finished(self):
-        if all((not getattr(item, "interactable", True)) or getattr(item, "is_finished", False) for item in self.items):
-            Item.Door.interactable = True
-        if all((not getattr(item, "interactable", True)) or getattr(item, "is_finished", False) for item in self.items):
-            return True
-    '''       
+
     def is_finished(self):
         puzzle_done = all((not item.interactable) or item.is_finished for item in self.items if not isinstance(item, Door))
         if not puzzle_done:
@@ -61,5 +55,6 @@ class Level:
             if item.collides_with(player_rect) and item.collision==True:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
 
 
