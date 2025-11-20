@@ -9,13 +9,16 @@ half_h = screen_h // 2
 class Item:
     """Base class for all items."""
 
-    def __init__(self, name, image_path, pos, size=(1,1)):
+    def __init__(self, name, image_path, pos, size=(1,1), collision=True, interactable=True):
         self.name = name
         self.image = pygame.image.load(image_path)
         world_x, world_y = pos
         screen_x = world_x + half_w
         screen_y = world_y + half_h
         self.rect = self.image.get_rect(center=(screen_x, screen_y)) #centers image starting pos
+        self.collision = collision
+        self.interactable = interactable
+        
         resize = (self.rect.width*size[0], self.rect.height*size[1])
         if resize != None:
             self.image = pygame.transform.scale(self.image, resize)
@@ -29,6 +32,7 @@ class Item:
         self.interact_radius = (x,y)
         self.glow_surface = self.create_glow_surface()
         self.is_active = True  # Used for disabling after interaction
+        self.is_finished = False
 
     def create_glow_surface(self):
         glow = pygame.Surface(self.rect.size, pygame.SRCALPHA)
@@ -45,7 +49,7 @@ class Item:
         if not self.is_active:
             return
         surface.blit(self.image, self.rect.topleft)
-        if self.is_near(player_rect):
+        if self.is_near(player_rect) and self.interactable:
             surface.blit(self.glow_surface, self.rect.topleft)
         if show_hitbox:
             pygame.draw.rect(surface, (0, 255, 0), self.rect, 2)
@@ -55,14 +59,18 @@ class Item:
 
 
 #Specialized item types
+
 class Crate(Item):
     def interact(self):
         print("crate")
+        self.is_finished = True
 
 class Table(Item):
     def interact(self):
         print("table")
+        self.is_finished = True
 
 class Statue(Item):
     def interact(self):
         print("statue")
+        self.is_finished = True
