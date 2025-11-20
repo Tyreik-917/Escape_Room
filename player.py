@@ -1,6 +1,5 @@
 import pygame
 import time
-from item import Item, Crate, Table, Statue
 width, height = 1920, 1080
 center_x, center_y = width//2, height//2
 class Player:
@@ -90,3 +89,4 @@ class Player:
                 item.interact()
                 self.last_interact = now
                 break
+
