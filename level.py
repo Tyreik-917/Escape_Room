@@ -20,7 +20,7 @@ class Level:
                 Door("door", "door.png", (0, 0), (1,1),False, False),
             ]  
             #make sure to change the address for door, pos,size, and change if you want it to have collision
-            self.background = pygame.image.load("background.png")
+            self.background = pygame.image.load("bedroom.png")
         elif level_id == 3:
             self.items = [
                 Door("door", "door.png", (0, 0), (1,1),False, False),
@@ -61,4 +61,5 @@ class Level:
             if item.collides_with(player_rect) and item.collision==True:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
 
