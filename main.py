@@ -1,5 +1,6 @@
 import pygame
 import pygame_menu
+import time
 from player import Player
 from level import Level
 
@@ -10,6 +11,15 @@ center_x, center_y = width//2, height//2
 win = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 player = Player(width//2, height//2)
+
+ui_font = pygame.font.Font("PressStart2P-Regular.ttf", 32)  # adjust size if needed
+current_message = ""
+message_timer = 0
+def show_message(text, duration=2):
+    global current_message, message_timer
+    current_message = text
+    message_timer = time.time() + duration
+
 
 def start():
     menu = pygame_menu.Menu(title="Welcome", width=width, height=height, theme=pygame_menu.themes.THEME_DARK)
@@ -43,9 +53,10 @@ def end():
 
 def game():
     player = Player(center_x, center_y)
-    level = Level(1)
+    level = Level(1, show_message)
     while True:
         dt = clock.tick(60)
+        level.update_interactable(player)
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,11 +81,20 @@ def game():
         #next level check
 
         if level.is_finished():
-            level = Level(level.level_id + 1)
+            level = Level(level.level_id + 1, show_message)
             #reposition player
             player.rect.center = (center_x, center_y)
         if level.level_id > 4:
             end()
             break
+
+        # Display message
+        if current_message and time.time() < message_timer:
+            box_rect = pygame.Rect(0, height - 120, width, 120)
+            pygame.draw.rect(win, (255, 255, 255), box_rect)
+            pygame.draw.rect(win, (0, 0, 0), box_rect, 4)
+            text_surface = ui_font.render(current_message, True, (0, 0, 0))
+            win.blit(text_surface, (40, height - 90))
+
         pygame.display.flip()
 start()
