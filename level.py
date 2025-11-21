@@ -16,6 +16,7 @@ class Level:
                 Statue_m("statue", "statue_m.png", (-200, height)),
                 Statue_f("statue", "statue_f.png", (200, height)),
             ]
+            #name,address, (pos) (0,0) = center, (size) * scale, collision (naturally on), interactable (naturally on)
             self.background = pygame.image.load("background.png")
         elif level_id == 2:
             self.items = [
@@ -54,13 +55,15 @@ class Level:
         print(closest_item)
 
     def is_finished(self):
-        puzzle_done = all((not item.interactable) or item.is_finished for item in self.items if not isinstance(item, Door))
+    # Puzzle is done if all non-door items are finished
+        puzzle_done = all(item.is_finished for item in self.items if not isinstance(item, Door))
         if not puzzle_done:
             return False
+        # Unlock the door(s)
         for item in self.items:
-            if isinstance(item, Door) and item.is_finished:
-                #item.interactable = True
-                return True
+            if isinstance(item, Door):
+                item.interactable = True  # persistent flag, can now interact with it
+                return item.is_finished  # return True only if the door itself is finished
         return False
 
     
@@ -75,3 +78,4 @@ class Level:
             if item.collides_with(player_rect) and item.collision==True:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
