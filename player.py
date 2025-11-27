@@ -85,7 +85,7 @@ class Player:
             return
 
         for item in items:
-            if item.is_active and item.is_near(self.rect) and item.interactable:
+            if item.is_active and item.is_near(self.rect) and item.interactable and item.reinteractable:
                 if getattr(item, "can_interact_now", False):
                     item.interact()
                     self.last_interact = now
