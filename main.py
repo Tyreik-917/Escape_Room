@@ -1,125 +1,214 @@
+# -----------------------------
+# Imports & Initialization
+# -----------------------------
 import pygame
 import pygame_menu
 import time
-from player import Player
-from level import Level
+from player import Player         # Custom Player class
+from level import Level           # Custom Level system
 
 pygame.init()
 
+# -----------------------------
+# Window / Display Setup
+# -----------------------------
 width, height = 1920, 1080
-center_x, center_y = width//2, height//2
+center_x, center_y = width // 2, height // 2
 win = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
-player = Player(width//2, height//2)
 
-ui_font = pygame.font.Font("PressStart2P-Regular.ttf", 32)  # adjust size if needed
-current_message = ""
-message_timer = 0
-message_queue = []
+# Create the player at the center of the screen
+player = Player(width // 2, height // 2)
+
+# -----------------------------
+# UI Message System (bottom textbox)
+# -----------------------------
+ui_font = pygame.font.Font("PressStart2P-Regular.ttf", 32)
+current_message = ""          # Text currently being displayed
+message_timer = 0             # When the message should disappear
+message_queue = []            # Queue for stacking multiple messages
+
+
 def show_message(text, duration=2, size=32, queue=False):
+    """
+    Displays text at the bottom of the screen.
+    If queue=True and a message is already showing, add to queue.
+    """
     global current_message, message_timer, ui_font, message_queue
+
+    # If text is queued and something is already being displayed
     if queue and current_message:
         message_queue.append((text, duration, size))
         return
+
+    # Change font size per message
     ui_font = pygame.font.Font("PressStart2P-Regular.ttf", size)
+
     current_message = text
     message_timer = time.time() + duration
 
+
+# -----------------------------
+# Start Menu
+# -----------------------------
 def start():
+    """
+    Loads and displays the start menu using pygame_menu.
+    Plays start-menu music.
+    """
     pygame.mixer.music.load("start_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
+
+    # Background image for start screen
     background_image = pygame_menu.baseimage.BaseImage("start_background.png")
+
+    # Menu theme styling
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
-        widget_font = pygame.font.Font("PressStart2P-Regular.ttf", 32),
-        widget_font_size = 40,
-        widget_font_color = (255, 255, 255),
-        widget_padding = 10,
-        selection_color = (255, 255, 0),
-        widget_alignment = pygame_menu.locals.ALIGN_CENTER
+        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font_size=40,
+        widget_font_color=(255, 255, 255),
+        widget_padding=10,
+        selection_color=(255, 255, 0),
+        widget_alignment=pygame_menu.locals.ALIGN_CENTER
     )
+
+    # Highlight box around selected item
     my_theme.widget_selection_effect = pygame_menu.widgets.HighlightSelection(
-        border_width=5,   # thicker border
-        margin_x=100,       # wider box
-        margin_y=70        # taller box
+        border_width=5,
+        margin_x=100,
+        margin_y=70
     )
+
     menu = pygame_menu.Menu("Welcome", width, height, theme=my_theme)
+
+    # Start screen art
     img = menu.add.image("start_select.png")
-    start = menu.add.button("         ", game)
-    quit  = menu.add.button("         ", pygame_menu.events.EXIT)
+
+    # Blank-button trick (text hidden)
+    start_button = menu.add.button("         ", game)
+    quit_button = menu.add.button("         ", pygame_menu.events.EXIT)
+
+    # Positioning of graphic/buttons
     img.translate(0, 0)
-    start.translate(-9, -289.5)
-    quit.translate(-9, -215)
+    start_button.translate(-9, -289.5)
+    quit_button.translate(-9, -215)
+
+    # Run the menu loop
     menu.mainloop(win)
 
 
+# -----------------------------
+# Pause Menu
+# -----------------------------
 def unpause():
+    """Resume the game by setting paused = False."""
     global paused
     paused = False
+
+
 def pause():
-    global paused 
+    """
+    Opens pause menu with dark transparent background.
+    Freezes gameplay until unpaused.
+    """
+    global paused
     paused = True
+
+    # Play pause music
     pygame.mixer.music.load("pause_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
+
     screen_surface = win.copy()
+
+    # Pause menu theme
     my_theme = pygame_menu.Theme(
         title=False,
-        background_color=(50, 50, 50, 200),   # transparentish
+        background_color=(50, 50, 50, 200),   # Semi transparent overlay
         widget_alignment=pygame_menu.locals.ALIGN_CENTER,
         widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
     )
+
     my_theme.widget_selection_effect = pygame_menu.widgets.HighlightSelection(
-        border_width=5,   # thicker border
-        margin_x=105,       # wider box
-        margin_y=75        # taller box
+        border_width=5,
+        margin_x=105,
+        margin_y=75
     )
-    pause_menu = pygame_menu.Menu(title="Paused", width=width, height=height, theme=my_theme)
+
+    # Build pause menu
+    pause_menu = pygame_menu.Menu("Paused", width, height, theme=my_theme)
     img = pause_menu.add.image("pause_select.png")
-    resume = pause_menu.add.button("         ", unpause)
-    quit  = pause_menu.add.button("         ", start)
+    resume_button = pause_menu.add.button("         ", unpause)
+    quit_button = pause_menu.add.button("         ", start)
+
     img.translate(0, 0)
-    resume.translate(-9, -277.5)
-    quit.translate(-9, -190) 
+    resume_button.translate(-9, -277.5)
+    quit_button.translate(-9, -190)
+
+    # Pause Loop
     while paused:
         win.blit(screen_surface, (0, 0))
         events = pygame.event.get()
         pause_menu.update(events)
         pause_menu.draw(win)
         pygame.display.update()
+
     pygame.mixer.music.stop()
+
+
+# -----------------------------
+# End Game Animation & Menu
+# -----------------------------
 def end():
+    """
+    Plays a frame-by-frame animation (15 images)
+    Then opens the end-menu.
+    """
     frames = [
         "end_1.png", "end_2.png", "end_3.png", "end_4.png", "end_5.png",
         "end_6.png", "end_7.png", "end_8.png", "end_9.png", "end_10.png",
         "end_11.png", "end_12.png", "end_13.png", "end_14.png", "end_15.png"
     ]
+
+    # Animation loop
     for frame in frames:
         img = pygame.image.load(frame).convert_alpha()
-        img = pygame.transform.scale(img,(1920, 1150))
+        img = pygame.transform.scale(img, (1920, 1150))
         win.blit(img, (0, 0))
         pygame.display.flip()
+
+        # Custom frame timings
         if frame == frames[2]:
             pygame.time.delay(800)
-        elif frame == frames[11] or frame == frames[12] or frame == frames[13] or frame == frames[14]:
-            time.sleep(.0001)
+        elif frame in (frames[11], frames[12], frames[13], frames[14]):
+            time.sleep(0.0001)
         else:
             pygame.time.delay(300)
+
+        # Start end music during first frame
         if frame == frames[0]:
             pygame.mixer.music.load("end_menu_music.mp3")
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1)
+
+        # Extra delay on frame 11
         if frame == frames[10]:
-            pygame.time.delay(1000)   
+            pygame.time.delay(1000)
+
     pygame.time.delay(3000)
+
+    # Turn last frame into background
     screen_surface = win.copy()
     pygame.image.save(screen_surface, "temp_pause_bg.png")
-    background_image = pygame_menu.baseimage.BaseImage(image_path="temp_pause_bg.png")
+    background_image = pygame_menu.baseimage.BaseImage("temp_pause_bg.png")
+
+    # End menu theme
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
@@ -129,64 +218,93 @@ def end():
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
     )
+
     my_theme.widget_selection_effect = pygame_menu.widgets.HighlightSelection(
-        border_width=5,   # thicker border
-        margin_x=105,       # wider box
-        margin_y=75        # taller box
+        border_width=5,
+        margin_x=105,
+        margin_y=75
     )
+
+    # Build end menu
     end_menu = pygame_menu.Menu("Thank you", width, height, theme=my_theme)
     img = end_menu.add.image("end_select.png")
-    menu= end_menu.add.button("         ", start)
-    quit  = end_menu.add.button("         ", pygame_menu.events.EXIT)
+    menu_button = end_menu.add.button("         ", start)
+    quit_button = end_menu.add.button("         ", pygame_menu.events.EXIT)
+
     img.translate(0, 0)
-    menu.translate(-9, -277.5)
-    quit.translate(-9, -190) 
+    menu_button.translate(-9, -277.5)
+    quit_button.translate(-9, -190)
+
     end_menu.draw(win)
     end_menu.mainloop(win)
 
 
+# -----------------------------
+# Main Game Loop
+# -----------------------------
 def game():
+    """
+    The actual playable game.
+    Handles movement, collisions, interaction, levels, and UI messages.
+    """
     global current_message, message_timer, message_queue, ui_font
+
     pygame.mixer.music.stop()
+
+    # Reset player & load level 1
     player = Player(center_x, center_y)
     level = Level(1, show_message)
-    
+
     while True:
         dt = clock.tick(60)
+
+        # Check if player is near an interactable item
         level.update_interactable(player)
+
         keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause()
                 elif event.key == pygame.K_e:
-                   player.try_interact(level.items)
-        # Movement
+                    player.try_interact(level.items)
+
+        # Player movement
         old = player.handle_input(keys)
         level.collide_player(old, player.rect)
-        # Animation
+
+        # Animation frame
         frame = player.animate()
+
+        # Draw level + player
         level.draw(win, player.rect)
         win.blit(frame, (player.rect.x, player.rect.y))
-        
-        #next level check
+
+        # Level complete → go to next level
         if level.is_finished():
             level = Level(level.level_id + 1, show_message)
-            #reposition player
             player.rect.center = (center_x, center_y)
+
+        # If level > 4 → end game
         if level.level_id > 4:
             end()
             break
 
-        # Display message
+        # -----------------------------
+        # Text Message Box Display
+        # -----------------------------
         if current_message and time.time() < message_timer:
             box_rect = pygame.Rect(0, height - 120, width, 120)
             pygame.draw.rect(win, (255, 255, 255), box_rect)
             pygame.draw.rect(win, (0, 0, 0), box_rect, 4)
             text_surface = ui_font.render(current_message, True, (0, 0, 0))
             win.blit(text_surface, (40, height - 90))
+
+        # Message expired → load next queued message
         if current_message and time.time() >= message_timer:
             if message_queue:
                 text, duration, size = message_queue.pop(0)
@@ -195,5 +313,11 @@ def game():
                 message_timer = time.time() + duration
             else:
                 current_message = ""
+
         pygame.display.flip()
+
+
+# -----------------------------
+# Start the Game
+# -----------------------------
 start()
