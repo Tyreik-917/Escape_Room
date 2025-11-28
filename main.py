@@ -12,9 +12,10 @@ pygame.init()
 # -----------------------------
 # Window / Display Setup
 # -----------------------------
-width, height = 1920, 1080
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
 center_x, center_y = width // 2, height // 2
-win = pygame.display.set_mode((width, height))
+win = pygame.display.set_mode((width, height), pygame.FULLSCREEN) #Window
 clock = pygame.time.Clock()
 
 # Create the player at the center of the screen
@@ -23,7 +24,7 @@ player = Player(width // 2, height // 2)
 # -----------------------------
 # UI Message System (bottom textbox)
 # -----------------------------
-ui_font = pygame.font.Font("PressStart2P-Regular.ttf", 32)
+ui_font = pygame.font.Font("Main/PressStart2P-Regular.ttf", 32)
 current_message = ""          # Text currently being displayed
 message_timer = 0             # When the message should disappear
 message_queue = []            # Queue for stacking multiple messages
@@ -42,7 +43,7 @@ def show_message(text, duration=2, size=32, queue=False):
         return
 
     # Change font size per message
-    ui_font = pygame.font.Font("PressStart2P-Regular.ttf", size)
+    ui_font = pygame.font.Font("Main/PressStart2P-Regular.ttf", size)
 
     current_message = text
     message_timer = time.time() + duration
@@ -56,18 +57,18 @@ def start():
     Loads and displays the start menu using pygame_menu.
     Plays start-menu music.
     """
-    pygame.mixer.music.load("start_menu_music.mp3")
+    pygame.mixer.music.load("Main/start_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
 
     # Background image for start screen
-    background_image = pygame_menu.baseimage.BaseImage("start_background.png")
+    background_image = pygame_menu.baseimage.BaseImage("Main/start_background.png")
 
     # Menu theme styling
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
-        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font=pygame.font.Font("Main/PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         widget_padding=10,
@@ -85,7 +86,7 @@ def start():
     menu = pygame_menu.Menu("Welcome", width, height, theme=my_theme)
 
     # Start screen art
-    img = menu.add.image("start_select.png")
+    img = menu.add.image("Main/start_select.png")
 
     # Blank-button trick (text hidden)
     start_button = menu.add.button("         ", game)
@@ -118,7 +119,7 @@ def pause():
     paused = True
 
     # Play pause music
-    pygame.mixer.music.load("pause_menu_music.mp3")
+    pygame.mixer.music.load("Main/pause_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
 
@@ -129,7 +130,7 @@ def pause():
         title=False,
         background_color=(50, 50, 50, 200),   # Semi transparent overlay
         widget_alignment=pygame_menu.locals.ALIGN_CENTER,
-        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font=pygame.font.Font("Main/PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
@@ -143,7 +144,7 @@ def pause():
 
     # Build pause menu
     pause_menu = pygame_menu.Menu("Paused", width, height, theme=my_theme)
-    img = pause_menu.add.image("pause_select.png")
+    img = pause_menu.add.image("Main/pause_select.png")
     resume_button = pause_menu.add.button("         ", unpause)
     quit_button = pause_menu.add.button("         ", start)
 
@@ -171,9 +172,9 @@ def end():
     Then opens the end-menu.
     """
     frames = [
-        "end_1.png", "end_2.png", "end_3.png", "end_4.png", "end_5.png",
-        "end_6.png", "end_7.png", "end_8.png", "end_9.png", "end_10.png",
-        "end_11.png", "end_12.png", "end_13.png", "end_14.png", "end_15.png"
+        "Main/end_1.png", "Main/end_2.png", "Main/end_3.png", "Main/end_4.png", "Main/end_5.png",
+        "Main/end_6.png", "Main/end_7.png", "Main/end_8.png", "Main/end_9.png", "Main/end_10.png",
+        "Main/end_11.png", "Main/end_12.png", "Main/end_13.png", "Main/end_14.png", "Main/end_15.png"
     ]
 
     # Animation loop
@@ -193,7 +194,7 @@ def end():
 
         # Start end music during first frame
         if frame == frames[0]:
-            pygame.mixer.music.load("end_menu_music.mp3")
+            pygame.mixer.music.load("Main/end_menu_music.mp3")
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1)
 
@@ -205,15 +206,15 @@ def end():
 
     # Turn last frame into background
     screen_surface = win.copy()
-    pygame.image.save(screen_surface, "temp_pause_bg.png")
-    background_image = pygame_menu.baseimage.BaseImage("temp_pause_bg.png")
+    pygame.image.save(screen_surface, "Main/temp_pause_bg.png")
+    background_image = pygame_menu.baseimage.BaseImage("Main/temp_pause_bg.png")
 
     # End menu theme
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
         widget_alignment=pygame_menu.locals.ALIGN_CENTER,
-        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font=pygame.font.Font("Main/PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
@@ -227,7 +228,7 @@ def end():
 
     # Build end menu
     end_menu = pygame_menu.Menu("Thank you", width, height, theme=my_theme)
-    img = end_menu.add.image("end_select.png")
+    img = end_menu.add.image("Main/end_select.png")
     menu_button = end_menu.add.button("         ", start)
     quit_button = end_menu.add.button("         ", pygame_menu.events.EXIT)
 
@@ -308,7 +309,7 @@ def game():
         if current_message and time.time() >= message_timer:
             if message_queue:
                 text, duration, size = message_queue.pop(0)
-                ui_font = pygame.font.Font("PressStart2P-Regular.ttf", size)
+                ui_font = pygame.font.Font("Main/PressStart2P-Regular.ttf", size)
                 current_message = text
                 message_timer = time.time() + duration
             else:

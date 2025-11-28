@@ -171,10 +171,10 @@ class Carpet(Item):
         self.rect.center = (pos_x, pos_y)
 
         # Change sprite
-        self.image = pygame.image.load("folded_carpet.png").convert_alpha()
+        self.image = pygame.image.load("level_1/folded_carpet.png").convert_alpha()
         self.rect = self.image.get_rect(center=self.rect.center)
 
-        pygame.mixer.Sound("carpet.mp3").play()
+        pygame.mixer.Sound("level_1/carpet.mp3").play()
 
         self.is_finished = True
         self.interactable = False
@@ -193,7 +193,7 @@ class Statue_m(Item):
             self.show_message("The statue seems to be missing something...", 3)
         else:
             self.show_message("You gave the wine to the statue. It seems satisfied.", 3)
-            pygame.mixer.Sound("drink.mp3").play()
+            pygame.mixer.Sound("level_1/drink.mp3").play()
             self.level.puzzles_solved += 1
             self.is_finished = True
             self.reinteractable = False
@@ -211,7 +211,7 @@ class Statue_f(Item):
             self.show_message("The statue seems to be missing something...", 3)
         else:
             self.show_message("You gave the feather to the statue. It seems satisfied.", 3)
-            pygame.mixer.Sound("swoosh.mp3").play()
+            pygame.mixer.Sound("level_1/swoosh.mp3").play()
             self.level.puzzles_solved += 1
             self.is_finished = True
             self.reinteractable = False
@@ -223,7 +223,7 @@ class Statue_f(Item):
 # -------------------------------
 class Picture(Item):
     def interact(self):
-        pygame.mixer.Sound("creak.mp3").play()
+        pygame.mixer.Sound("level_1/creak.mp3").play()
         self.level.puzzles_solved += 1
         self.show_message(
             "The picture shows a man with wine and a woman with a feather",
@@ -250,7 +250,7 @@ class Shovel(Item):
         self.show_message("You grabbed the shovel!", 3)
         has_shovel = True
 
-        pygame.mixer.Sound("shovel.mp3").play()
+        pygame.mixer.Sound("level_1/shovel.mp3").play()
 
         self.is_finished = True
         self.reinteractable = False
@@ -270,7 +270,7 @@ class Trash(Item):
 
         else:
             self.show_message("You dug through the trash!", 3)
-            pygame.mixer.Sound("trash.mp3").play(maxtime=4000)
+            pygame.mixer.Sound("level_1/trash.mp3").play(maxtime=4000)
 
             self.is_finished = True
             self.reinteractable = False
@@ -293,8 +293,8 @@ class Chest(Item):
         self.show_message("You found wine inside the chest.", 3)
 
         self.is_finished = True
-        self.image = pygame.image.load("chest_opened.png").convert_alpha()
-        pygame.mixer.Sound("chest_opened.mp3").play()
+        self.image = pygame.image.load("level_1/chest_opened.png").convert_alpha()
+        pygame.mixer.Sound("level_1/chest_opened.mp3").play()
 
         self.interactable = False
         self.reinteractable = False
@@ -306,7 +306,7 @@ class Chest(Item):
 # -------------------------------
 class MusicBox(Item):
     def interact(self):
-        self.music = pygame.mixer.Sound("abc's.mp3")
+        self.music = pygame.mixer.Sound("level_1/abc's.mp3")
         self.music.set_volume(0.3)
 
         # Toggle music playback
@@ -340,16 +340,16 @@ class Bookshelf(Item):
 
         # Correct order of books
         correct_order = [
-            'agartha.png', 'blue_collar.png', 'domer.png', 'eye_of_rah.png',
-            'how_to_aura_farm.png', 'i_need_this.png', 'mi_bombo.png',
-            'thank_you.png', 'the_art_of_67.png'
+            'agartha.png', 'level_1/blue_collar.png', 'level_1/domer.png', 'level_1/eye_of_rah.png',
+            'level_1/how_to_aura_farm.png', 'level_1/i_need_this.png', 'level_1/mi_bombo.png',
+            'level_1/thank_you.png', 'level_1/the_art_of_67.png'
         ]
 
         # Sound for each book
         sound = [
-            'agartha.mp3', 'blue_collar.mp3', 'domer.mp3', 'eye_of_rah.mp3',
-            'how_to_aura_farm.mp3', 'i_need_this.mp3', 'mi_bombo.mp3',
-            'thank_you.mp3', 'the_art_of_67.mp3'
+            'level_1/agartha.mp3', 'level_1/blue_collar.mp3', 'level_1/domer.mp3', 'level_1/eye_of_rah.mp3',
+            'level_1/how_to_aura_farm.mp3', 'level_1/i_need_this.mp3', 'level_1/mi_bombo.mp3',
+            'level_1/thank_you.mp3', 'level_1/the_art_of_67.mp3'
         ]
 
         # Randomized book order
@@ -387,7 +387,7 @@ class Bookshelf(Item):
         cursor_index = 0
 
         # Puzzle background
-        puzzle_img = pygame.image.load("bookshelf_puzzle.png").convert_alpha()
+        puzzle_img = pygame.image.load("level_1/bookshelf_puzzle.png").convert_alpha()
         puzzle_img = pygame.transform.scale(puzzle_img, (half_w, half_h))
         puzzle_rect = puzzle_img.get_rect(center=(half_w, half_h))
 

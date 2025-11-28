@@ -15,31 +15,33 @@ class Level:
         # LOAD ITEMS FOR LEVEL 1
         # --------------------------------------------------
         if level_id == 1:
+            
             self.items = [
                 # name, sprite,       (world position), size, collision?, interactable?
-                Door("door", "trapdoor.png", (0, -100), (1.5,1.5), False, False),
-                Carpet("carpet", "carpet.png", (0, -100), (1,1), False),
-                Picture("picture", "picture.png", (0, height), (1,1), False, False),
-                Statue_m("statue", "statue_m.png", (-200, height), (1,1), False, False),
-                Statue_f("statue", "statue_f.png", (200, height), (1,1), False, False),
-                Knife("knife", "knife.png", (-width+140, height-110), (1,1), False, False),
-                Shovel("shovel", "shovel.png", (width-140, height-115), (1,1.5), False, False),
-                Trash("trash", "trash.png", (-width, -330), (1,1), True, False),
-                Chest("chest", "chest.png", (-width, -250)),
-                MusicBox("music_box", "music_box.png", (-width//2 + 50, height-200), (1,1), False, False),
-                Bookshelf("bookshelf", "bookshelf.png", (width, -height+350), (1,1), True, False),
+                Door("door", "level_1/trapdoor.png", (0, -100), (1.5,1.5), False, False),
+                Carpet("carpet", "level_1/carpet.png", (0, -100), (1,1), False),
+                Picture("picture", "level_1/picture.png", (0, height), (1,1), False, False),
+                Statue_m("statue", "level_1/statue_m.png", (-200, height), (1,1), False, False),
+                Statue_f("statue", "level_1/statue_f.png", (200, height), (1,1), False, False),
+                Knife("knife", "level_1/knife.png", (-width+140, height-110), (1,1), False, False),
+                Shovel("shovel", "level_1/shovel.png", (width-140, height-115), (1,1.5), False, False),
+                Trash("trash", "level_1/trash.png", (-width, -330), (1,1), True, False),
+                Chest("chest", "level_1/chest.png", (-width, -250)),
+                MusicBox("music_box", "level_1/music_box.png", (-width//2 + 50, height-200), (1,1), False, False),
+                Bookshelf("bookshelf", "level_1/bookshelf.png", (width, -height+350), (1,1), True, False),
             ]
 
             # Knife starts completed so it doesn’t block the level
             Knife.is_finished = True
 
             # Load background for attic level
-            self.background = pygame.image.load("attic.png")
+            self.background = pygame.image.load("level_1/attic.png")
 
             # Intro tutorial messages
             self.show_message("Oh no, I've been kidnapped I must ESCAPE", size=32, queue=True)
             self.show_message("I can use 'W','A','S','D' to get around", size=32, queue=True)
             self.show_message("I can use 'E' to interact with my surroundings", size=32, queue=True)
+            
 
         # --------------------------------------------------
         # LEVELS 2, 3, AND 4 (placeholder functionality)
@@ -55,6 +57,7 @@ class Level:
         elif level_id == 4:
             self.items = [ Door("door", "table.png", (0, 0), (1,1), False, True) ]
             self.background = pygame.image.load("background.png")
+            
 
         # Give each item the callback to display messages
         for item in self.items:
@@ -142,11 +145,11 @@ class Level:
 
                 # Special trapdoor animation for level 1
                 if self.level_id == 1:
-                    item.image = pygame.image.load("trapdoor_open.png").convert_alpha()
+                    item.image = pygame.image.load("level_1/trapdoor_open.png").convert_alpha()
                     item.image = pygame.transform.scale(item.image, item.resize)
 
                     if not item.can_open:  # play sound only once
-                        pygame.mixer.Sound("trap_door_open.mp3").play()
+                        pygame.mixer.Sound("level_1/trap_door_open.mp3").play()
 
                 item.can_open = True
                 return item.is_finished

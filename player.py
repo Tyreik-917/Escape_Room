@@ -26,9 +26,9 @@ class Player:
         # ---------------------------
         # Load idle and walking frames
         self.frames = [
-            pygame.image.load("idle.png"),
-            pygame.image.load("walk_1.png"),
-            pygame.image.load("walk_2.png")
+            pygame.image.load("Main/idle.png"),
+            pygame.image.load("Main/walk_1.png"),
+            pygame.image.load("Main/walk_2.png")
         ]
 
         # Resize frames to match sprite size
@@ -52,7 +52,7 @@ class Player:
         # ---------------------------
         # FOOTSTEP SOUND
         # ---------------------------
-        self.footstep = pygame.mixer.Sound("footstep.mp3")
+        self.footstep = pygame.mixer.Sound("Main/footstep.mp3")
         self.footstep.set_volume(0.3)
 
     # ---------------------------------------------------------
