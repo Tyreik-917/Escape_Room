@@ -1,20 +1,23 @@
 import pygame
 import time
 
-# Screen dimensions (used for movement boundaries)
-width, height = 1920, 1080
-center_x, center_y = width // 2, height // 2
-
-
 class Player:
-    def __init__(self, x, y, sprite_size=128):
+    def __init__(self, x, y, screen_width, screen_height, sprite_size=128, initial_scale=1.0):
         """
-        Initialize the player object:
-        - Sets up position
-        - Loads animations
-        - Configures movement and interaction
+        Initialize the player object.
+        - x,y: center world/screen position
+        - screen_width/height: for movement boundaries
+        - sprite_size: base size used for scaling frames initially
+        - initial_scale: initial scale multiplier (1.0 = original)
         """
-        # Collision box for movement and interaction
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+
+        # store logical sprite size (base size before scale)
+        self.base_sprite_size = sprite_size
+        self.current_scale = float(initial_scale)
+
+        # Collision box for movement and interaction (size will be updated after frames are created)
         self.rect = pygame.Rect(0, 0, sprite_size, sprite_size)
         self.rect.center = (x, y)
 
@@ -22,20 +25,18 @@ class Player:
         self.speed = 5
 
         # ---------------------------
-        # ANIMATION SETUP
+        # ANIMATION SETUP (load originals)
         # ---------------------------
-        # Load idle and walking frames
-        self.frames = [
-            pygame.image.load("Main/idle.png"),
-            pygame.image.load("Main/walk_1.png"),
-            pygame.image.load("Main/walk_2.png")
+        # Load original (unscaled) frames and keep them so we can rescale cleanly
+        self._original_frames = [
+            pygame.image.load("Main/idle.png").convert_alpha(),
+            pygame.image.load("Main/walk_1.png").convert_alpha(),
+            pygame.image.load("Main/walk_2.png").convert_alpha()
         ]
 
-        # Resize frames to match sprite size
-        self.frames = [
-            pygame.transform.scale(f, (sprite_size, sprite_size))
-            for f in self.frames
-        ]
+        # Create the active frames (scaled)
+        self.frames = []
+        self._rescale_frames(self.current_scale)
 
         # Animation state tracking
         self.frame_index = 0
@@ -52,8 +53,50 @@ class Player:
         # ---------------------------
         # FOOTSTEP SOUND
         # ---------------------------
-        self.footstep = pygame.mixer.Sound("Main/footstep.mp3")
-        self.footstep.set_volume(0.3)
+        try:
+            self.footstep = pygame.mixer.Sound("Main/footstep.mp3")
+            self.footstep.set_volume(0.3)
+        except Exception:
+            self.footstep = None
+
+    # ---------------------------------------------------------
+    # INTERNAL: rescale frames (used by constructor and resize)
+    # ---------------------------------------------------------
+    def _rescale_frames(self, scale):
+        """
+        Rescale original frames by given scale multiplier and update
+        the current frames list and collision rect while preserving center.
+        """
+        # Keep center so we can restore after changing rect
+        old_center = self.rect.center
+
+        new_w = int(self.base_sprite_size * scale)
+        new_h = int(self.base_sprite_size * scale)
+
+        if new_w <= 0: new_w = 1
+        if new_h <= 0: new_h = 1
+
+        self.frames = [
+            pygame.transform.scale(frame, (new_w, new_h))
+            for frame in self._original_frames
+        ]
+
+        # Update rect to match new frame size, preserve center
+        self.rect = self.frames[0].get_rect(center=old_center)
+
+    # ---------------------------------------------------------
+    # Public API: resize at runtime (Method 3)
+    # ---------------------------------------------------------
+    def resize(self, scale):
+        """
+        Resize the player's visible sprite and collision rect.
+        - scale: float multiplier (e.g. 0.75 for 75% size)
+        """
+        if scale <= 0:
+            raise ValueError("scale must be > 0")
+
+        self.current_scale = float(scale)
+        self._rescale_frames(self.current_scale)
 
     # ---------------------------------------------------------
     # HANDLE MOVEMENT INPUT (WASD)
@@ -90,18 +133,17 @@ class Player:
 
         # ---------------------------
         # MOVEMENT BOUNDARIES
-        # Prevent player from leaving screen or going too far up
         # ---------------------------
         top_limit = 200  # Custom camera/scene limit
 
         if self.rect.left < 0:
             self.rect.left = 0
-        if self.rect.right > width:
-            self.rect.right = width
+        if self.rect.right > self.screen_width:
+            self.rect.right = self.screen_width
         if self.rect.top < top_limit:
             self.rect.top = top_limit
-        if self.rect.bottom > height:
-            self.rect.bottom = height
+        if self.rect.bottom > self.screen_height:
+            self.rect.bottom = self.screen_height
 
         return old  # Used to revert if colliding with walls
 
@@ -118,9 +160,8 @@ class Player:
             self.frame_index += self.animation_speed
 
             # Play footstep sound only when not already playing
-            if not pygame.mixer.get_busy():
+            if self.footstep and not pygame.mixer.get_busy():
                 self.footstep.play()
-
         else:
             # Reset to idle frame
             self.frame_index = 0
@@ -156,10 +197,10 @@ class Player:
         # Loop through all interactable items in the level
         for item in items:
             if (
-                item.is_active
+                getattr(item, "is_active", True)
                 and item.is_near(self.rect)
-                and item.interactable
-                and item.reinteractable
+                and getattr(item, "interactable", True)
+                and getattr(item, "reinteractable", True)
             ):
                 # Some items only allow interaction under certain conditions
                 if getattr(item, "can_interact_now", False):

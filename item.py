@@ -3,12 +3,6 @@ import pygame
 import time
 import random
 
-# Screen constants (shared with the rest of the game)
-width = 1920
-height = 1080
-half_w = width // 2
-half_h = height // 2
-
 # Global game flags used by certain puzzles
 wine = False
 feather = False
@@ -31,8 +25,17 @@ class Item:
     """
 
     def __init__(self, name, image_path, pos, size=(1,1),
-                 collision=True, interactable=True, reinteractable=True):
-
+                 collision=True, interactable=True, reinteractable=True,
+                 screen_width=1512, screen_height=982):
+        
+        #if screen_width is None or screen_height is None: 
+            #raise ValueError("Item requires screen_width and screen_height arguments")
+        
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.half_w = self.screen_width // 2
+        self.half_h = self.screen_height // 2
+        
         self.name = name
 
         # Load the sprite
@@ -40,8 +43,8 @@ class Item:
         
         # Convert world-position (0,0 center-based) into screen coordinates
         world_x, world_y = pos
-        screen_x = world_x + half_w
-        screen_y = half_h - world_y
+        screen_x = world_x + self.half_w
+        screen_y = self.half_h - world_y
 
         # Rect centered at given position
         self.rect = self.image.get_rect(center=(screen_x, screen_y))
@@ -65,13 +68,13 @@ class Item:
         self.rect = self.image.get_rect(center=(screen_x, screen_y))
 
         # Clamp item inside world boundaries
-        world_x = max(-half_w + self.rect.width//2,
-                      min(world_x, half_w - self.rect.width//2))
-        world_y = max(-half_h + self.rect.height//2,
-                      min(world_y, half_h - self.rect.height//2))
+        world_x = max(-self.half_w + self.rect.width//2,
+                      min(world_x, self.half_w - self.rect.width//2))
+        world_y = max(-self.half_h + self.rect.height//2,
+                      min(world_y, self.half_h - self.rect.height//2))
 
         # Reposition clamped coordinates back into screen space
-        self.rect.center = (world_x + half_w, half_h - world_y)
+        self.rect.center = (world_x + self.half_w, self.half_h - world_y)
 
         # Interaction radius: depends on size of object (min 150)
         x = max(self.rect.width, 150)
@@ -145,7 +148,88 @@ class Item:
         """Simple AABB collision check."""
         return self.is_active and self.rect.colliderect(other_rect)
 
+# ----------------------------------------------------------
+# Keypad FUNCTIONS
+# ----------------------------------------------------------
+class Keypad:
+    def __init__(self, correct_code="6767"):
+        self.correct_code = correct_code
+        self.input_code = ""
+        self.active = False
 
+        # Keypad layout
+        self.button_size = 90
+        self.spacing = 15
+        self.x = 600
+        self.y = 300
+
+        # Build 1–9 buttons
+        self.buttons = []
+        num = 1
+        for r in range(3):
+            for c in range(3):
+                bx = self.x + c * (self.button_size + self.spacing)
+                by = self.y + r * (self.button_size + self.spacing)
+                rect = pygame.Rect(bx, by, self.button_size, self.button_size)
+                self.buttons.append((rect, str(num)))
+                num += 1
+
+        self.font = pygame.font.SysFont(None, 52)
+
+    def open(self):
+        self.active = True
+        self.input_code = ""
+
+    def close(self):
+        self.active = False
+        self.input_code = ""
+
+    def draw(self, surface):
+        if not self.active:
+            return
+
+        # Background overlay
+        overlay = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+        overlay.fill((0,0,0,180))
+        surface.blit(overlay, (0,0))
+
+        # Draw buttons
+        for rect, num in self.buttons:
+            pygame.draw.rect(surface, (220,220,220), rect)
+            pygame.draw.rect(surface, (40,40,40), rect, 3)
+            text = self.font.render(num, True, (0,0,0))
+            surface.blit(text, text.get_rect(center=rect.center))
+
+        # Draw input at top
+        code_text = self.font.render(self.input_code, True, (255,255,255))
+        surface.blit(code_text, (self.x, self.y - 60))
+
+    def handle_event(self, event):
+        if not self.active:
+            return None
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.close()
+                return "CLOSED"
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mx, my = event.pos
+            for rect, num in self.buttons:
+                if rect.collidepoint(mx, my):
+                    if len(self.input_code) < 4:
+                        self.input_code += num
+
+                    # Check code
+                    if self.input_code == self.correct_code:
+                        return "UNLOCKED"
+
+                    # If exceeded 4 digits and wrong → reset
+                    if len(self.input_code) >= 4:
+                        self.input_code = ""
+                        return "RESET"
+
+        return None
 
 # ----------------------------------------------------------
 # SPECIALIZED ITEM TYPES — LEVEL 1
@@ -166,8 +250,8 @@ class Carpet(Item):
 
         # Move folded carpet
         new_x, new_y = (0, -300)
-        pos_x = new_x + half_w
-        pos_y = half_h - new_y
+        pos_x = new_x + self.half_w
+        pos_y = self.half_h - new_y
         self.rect.center = (pos_x, pos_y)
 
         # Change sprite
@@ -316,6 +400,7 @@ class MusicBox(Item):
             pygame.mixer.stop()
 
         self.is_finished = True
+        self.optional = True
 
 
 
@@ -340,7 +425,7 @@ class Bookshelf(Item):
 
         # Correct order of books
         correct_order = [
-            'agartha.png', 'level_1/blue_collar.png', 'level_1/domer.png', 'level_1/eye_of_rah.png',
+            'level_1/agartha.png', 'level_1/blue_collar.png', 'level_1/domer.png', 'level_1/eye_of_rah.png',
             'level_1/how_to_aura_farm.png', 'level_1/i_need_this.png', 'level_1/mi_bombo.png',
             'level_1/thank_you.png', 'level_1/the_art_of_67.png'
         ]
@@ -401,7 +486,8 @@ class Bookshelf(Item):
             screen = pygame.display.get_surface()
 
             # Redraw level behind puzzle
-            self.level.draw(screen, self.level.items[0].rect)
+            if hasattr(self, "level"):
+                self.level.draw(screen, self.level.items[0].rect)
 
             # Draw puzzle backdrop
             screen.blit(puzzle_img, puzzle_rect.topleft)
@@ -423,9 +509,9 @@ class Bookshelf(Item):
             pygame.draw.rect(screen, (255, 255, 255), box_rect)
             pygame.draw.rect(screen, (0, 0, 0), box_rect, 4)
 
-            font = pygame.font.Font("PressStart2P-Regular.ttf", 25)
-            screen.blit(font.render(message_1, True, (0, 0, 0)), (40, height - 100))
-            screen.blit(font.render(message_2, True, (0, 0, 0)), (40, height - 45))
+            font = pygame.font.Font("Main/PressStart2P-Regular.ttf", 25)
+            screen.blit(font.render(message_1, True, (0, 0, 0)), (40, half_h*2 - 100))
+            screen.blit(font.render(message_2, True, (0, 0, 0)), (40, half_h*2 - 45))
 
             # INPUT HANDLING
             for event in pygame.event.get():
@@ -491,7 +577,176 @@ class Bookshelf(Item):
             # Track whether audio is currently playing
             audioplaying = pygame.mixer.get_busy()
 
+# ----------------------------------------------------------
+# SPECIALIZED ITEM TYPES — LEVEL 2
+# ----------------------------------------------------------
 
+
+
+# ----------------------------------------------------------
+# SPECIALIZED ITEM TYPES — LEVEL 3
+# ----------------------------------------------------------
+
+
+
+# ----------------------------------------------------------
+# SPECIALIZED ITEM TYPES — LEVEL 4
+# ----------------------------------------------------------
+class Red_Mouse(Item):
+    def interact(self):
+        cheese_status = globals().get('has_cheese', False)
+
+        if not cheese_status:
+            self.show_message("Can you find my toy cheese and enter the password into the code box for me buddy", 3)
+        else:
+            self.show_message("You gave the cheese to Bobby. He seems satisfied.", 3)
+            #pygame.mixer.Sound("level_1/swoosh.mp3").play()
+            self.level.puzzles_solved += 1
+            self.is_finished = True
+            self.reinteractable = False
+            
+class Grey_Mouse(Item):
+    def interact(self):
+
+        #if not feather_status:
+            #self.show_message("The statue seems to be missing something...", 3)
+        #else:
+            self.show_message("Go get rid of the trash and replace the power unc", 3)
+            #self.level.puzzles_solved += 1
+            self.is_finished = True
+            self.reinteractable = False
+            
+class Cheese_man(Item):
+    def interact(self):
+        global has_cheese
+        self.show_message("You have the cheese touch!", 3)
+        has_cheese = True
+
+        self.is_finished = True
+        self.reinteractable = False
+        self.is_active = False
+class Emty_Barrel(Item):
+    def interact(self):
+        self.show_message("There seems to be nothing inside this barrel.", 3)
+
+        self.is_finished = True
+
+        self.interactable = False
+        self.reinteractable = False
+
+class Barrel(Item):
+    def interact(self):
+        global battery
+        battery = True
+
+        self.show_message("You found a battery inside the barrel.", 3)
+
+        self.is_finished = True
+
+        self.interactable = False
+        self.reinteractable = False
+
+class Vent_6(Item):
+    def interact(self):
+        global hint_found
+        hint_found = True
+
+        self.show_message("You found a clue!", 3)
+
+        # Change sprite
+        self.image = pygame.image.load("level_4/6.png").convert_alpha()
+        
+        new_width = 90   
+        new_height = 90
+        self.image = pygame.transform.scale(self.image, (new_width, new_height))
+        
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+        #pygame.mixer.Sound("level_1/carpet.mp3").play()
+
+        self.is_finished = True
+        self.interactable = False
+        self.reinteractable = False
+        
+class Vent_7(Item):
+    def interact(self):
+        global hint_found
+        hint_found = True
+
+        self.show_message("You found a clue!", 3)
+
+        # Change sprite
+        self.image = pygame.image.load("level_4/7.png").convert_alpha()
+        
+        new_width = 90   
+        new_height = 90
+        self.image = pygame.transform.scale(self.image, (new_width, new_height))
+        
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+        #pygame.mixer.Sound("level_1/carpet.mp3").play()
+
+        self.is_finished = True
+        self.interactable = False
+        self.reinteractable = False
+class Code_box(Item):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Attach a keypad to this box
+        self.keypad = Keypad(correct_code="6767")   # CHANGE CODE HERE
+
+    def interact(self):
+        """Open keypad when player interacts."""
+        self.keypad.open()
+
+    def handle_keypad(self, event):
+        """Must be called from your Level's event loop."""
+        if not self.keypad.active:
+            return
+
+        result = self.keypad.handle_event(event)
+
+        if result == "UNLOCKED":
+            self.show_message("Password accepted!", 3)
+            self.level.puzzles_solved += 1
+            self.is_finished = True
+            self.interactable = False
+            self.reinteractable = False
+            self.keypad.close()
+
+        elif result == "RESET":
+            self.show_message("Wrong code, try again.", 2)
+
+    def draw_keypad(self, screen):
+        """Call this inside your main draw loop."""
+        self.keypad.draw(screen)
+
+class Power_Bank(Item):
+    def interact(self):
+        battery_status = globals().get('battery', False)
+
+        if not battery_status:
+            self.show_message("You need to find a battery to put in here", 3)
+        else:
+            self.show_message("You have restored power to 100%", 3)
+            #pygame.mixer.Sound("level_1/swoosh.mp3").play()
+            self.level.puzzles_solved += 1
+            self.is_finished = True
+            self.reinteractable = False
+
+    def interact(self):
+        brush_status = globals().get('has_brush', False)
+
+        if not brush_status:
+            self.show_message("You need something to clean the trash.", 3)
+
+        else:
+            self.show_message("You cleaned the trash!", 3)
+
+            self.is_finished = True
+            self.reinteractable = False
+            self.is_active = False
 
 # ----------------------------------------------------------
 # GENERAL DOOR — USED IN EVERY LEVEL

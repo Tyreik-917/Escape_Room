@@ -14,12 +14,13 @@ pygame.init()
 # -----------------------------
 info = pygame.display.Info()
 width, height = info.current_w, info.current_h
+#width, height = 1920, 1080  
 center_x, center_y = width // 2, height // 2
-win = pygame.display.set_mode((width, height), pygame.FULLSCREEN) #Window
+win = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #Window 
 clock = pygame.time.Clock()
 
 # Create the player at the center of the screen
-player = Player(width // 2, height // 2)
+#player = Player(width // 2, height // 2)     Put back if needed
 
 # -----------------------------
 # UI Message System (bottom textbox)
@@ -253,10 +254,11 @@ def game():
     pygame.mixer.music.stop()
 
     # Reset player & load level 1
-    player = Player(center_x, center_y)
-    level = Level(1, show_message)
+    player = Player(center_x, center_y,width, height)
+    level = Level(2, show_message, width, height)
 
     while True:
+        player.resize(0.5) # Delete after placement test
         dt = clock.tick(60)
 
         # Check if player is near an interactable item
@@ -287,7 +289,12 @@ def game():
 
         # Level complete → go to next level
         if level.is_finished():
-            level = Level(level.level_id + 1, show_message)
+            
+            level = Level(level.level_id + 1, show_message, width, height)
+            
+            if level.level_id == 2:
+                player.resize(0.5)
+            
             player.rect.center = (center_x, center_y)
 
         # If level > 4 → end game
