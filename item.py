@@ -446,7 +446,8 @@ class Bookshelf(Item):
         book_height = 130
         spacing = 5
 
-        width, height = 1920, 1080
+        info = pygame.display.Info()
+        width, height = info.current_w, info.current_h
         half_w, half_h = width // 2, height // 2
 
         book_images = [
@@ -611,8 +612,8 @@ class Grey_Mouse(Item):
         #if not feather_status:
             #self.show_message("The statue seems to be missing something...", 3)
         #else:
-            self.show_message("Go get rid of the trash and replace the power unc", 3)
-            #self.level.puzzles_solved += 1
+            self.show_message("Go replace the power unc", 3)
+            self.level.puzzles_solved += 1
             self.is_finished = True
             self.reinteractable = False
             
@@ -734,19 +735,6 @@ class Power_Bank(Item):
             self.level.puzzles_solved += 1
             self.is_finished = True
             self.reinteractable = False
-
-    def interact(self):
-        brush_status = globals().get('has_brush', False)
-
-        if not brush_status:
-            self.show_message("You need something to clean the trash.", 3)
-
-        else:
-            self.show_message("You cleaned the trash!", 3)
-
-            self.is_finished = True
-            self.reinteractable = False
-            self.is_active = False
 
 # ----------------------------------------------------------
 # GENERAL DOOR — USED IN EVERY LEVEL

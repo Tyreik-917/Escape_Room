@@ -1,5 +1,5 @@
 import pygame
-from item import Item, Carpet, Statue_m, Statue_f, Picture, Door, Chest, Shovel, Knife, Trash, MusicBox, Bookshelf, Red_Mouse, Grey_Mouse, Cheese_man, Emty_Barrel, Barrel, Vent_6, Vent_7, Code_box, Power_Bank, Brush, Small_Trash
+from item import Item, Carpet, Statue_m, Statue_f, Picture, Door, Chest, Shovel, Knife, Trash, MusicBox, Bookshelf, Red_Mouse, Grey_Mouse, Cheese_man, Emty_Barrel, Barrel, Vent_6, Vent_7, Code_box, Power_Bank
 
 class Level:
     def __init__(self, level_id, show_message_callback, screen_width, screen_height):
@@ -18,51 +18,51 @@ class Level:
         if level_id == 1:
               
             self.items = [
-    Door("door", "level_1/trapdoor.png", (0 , -100),
-         size=(1.5, 1.5), collision=False, interactable=False,
-         screen_width=self.width, screen_height=self.height),
+            Door("door", "level_1/trapdoor.png", (0 , -100),
+                size=(1.5, 1.5), collision=False, interactable=False,
+                screen_width=self.width, screen_height=self.height),
 
-    Carpet("carpet", "level_1/carpet.png", (0 , -100),
-           size=(1, 1), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
+            Carpet("carpet", "level_1/carpet.png", (0 , -100),
+                size=(1, 1), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
 
-    Picture("picture", "level_1/picture.png", (50, self.height),
-            size=(1, 1), collision=False, interactable=False,
-            screen_width=self.width, screen_height=self.height),
+            Picture("picture", "level_1/picture.png", (50, self.height),
+                    size=(1, 1), collision=False, interactable=False,
+                    screen_width=self.width, screen_height=self.height),
 
-    Statue_m("statue_m", "level_1/statue_m.png", (-150, self.height),
-             size=(1, 1), collision=False, interactable=False,
-             screen_width=self.width, screen_height=self.height),
+            Statue_m("statue_m", "level_1/statue_m.png", (-150, self.height),
+                    size=(1, 1), collision=False, interactable=False,
+                    screen_width=self.width, screen_height=self.height),
 
-    Statue_f("statue_f", "level_1/statue_f.png", (250, self.height),
-             size=(1, 1), collision=False, interactable=False,
-             screen_width=self.width, screen_height=self.height),
+            Statue_f("statue_f", "level_1/statue_f.png", (250, self.height),
+                    size=(1, 1), collision=False, interactable=False,
+                    screen_width=self.width, screen_height=self.height),
 
-    Knife("knife", "level_1/knife.png", (-self.width + 150, 450),
-          size=(1, 1), collision=False, interactable=False,
-          screen_width=self.width, screen_height=self.height),
+            Knife("knife", "level_1/knife.png", (-self.width + 150, 450),
+                size=(1, 1), collision=False, interactable=False,
+                screen_width=self.width, screen_height=self.height),
 
-    Shovel("shovel", "level_1/shovel.png", (self.width - 150, 450),
-           size=(1, 1.5), collision=False, interactable=False,
-           screen_width=self.width, screen_height=self.height),
+            Shovel("shovel", "level_1/shovel.png", (self.width - 150, 450),
+                size=(1, 1.5), collision=False, interactable=False,
+                screen_width=self.width, screen_height=self.height),
+            
+            Trash("trash", "level_1/trash.png", (-self.width, -330),
+                size=(1, 1), collision=True, interactable=False,
+                screen_width=self.width, screen_height=self.height),
 
-    Trash("trash", "level_1/trash.png", (-self.width, -330),
-          size=(1, 1), collision=True, interactable=False,
-          screen_width=self.width, screen_height=self.height),
+            Chest("chest", "level_1/chest.png", (-self.width, -200),
+                size=(1, 1), collision=True, interactable=True,
+                screen_width=self.width, screen_height=self.height),
 
-    Chest("chest", "level_1/chest.png", (-self.width, -200),
-          size=(1, 1), collision=True, interactable=True,
-          screen_width=self.width, screen_height=self.height),
+            MusicBox("music_box", "level_1/music_box.png", (-350,300),
+                    size=(1, 1), collision=False, interactable=False,
+                    screen_width=self.width, screen_height=self.height),
 
-    MusicBox("music_box", "level_1/music_box.png", (-350,300),
-             size=(1, 1), collision=False, interactable=False,
-             screen_width=self.width, screen_height=self.height),
-
-    Bookshelf("bookshelf", "level_1/bookshelf.png",
-              (self.width, -self.height + 500),
-              size=(1, 1), collision=True, interactable=False,
-              screen_width=self.width, screen_height=self.height),
-]
+            Bookshelf("bookshelf", "level_1/bookshelf.png",
+                    (self.width, -self.height + 500),
+                    size=(1, 1), collision=True, interactable=False,
+                    screen_width=self.width, screen_height=self.height),
+            ]
 
 
              # Knife starts completed so it doesn’t block the level
@@ -88,58 +88,58 @@ class Level:
 
             
             self.items = [
-        Door("door", "Main/exit.png", (-130 , self.height - 660),
-         size=(0.1, 0.1), collision=False, interactable=False,
-         screen_width=self.width, screen_height=self.height),
-        
-        Vent_6("vent", "level_4/vent.png", (85 , 100),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Vent_7("vent", "level_4/vent.png", (-30 , - self.height - 75),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Vent_6("vent", "level_4/vent.png", (-610 , self.height - 780),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Vent_7("vent", "level_4/vent.png", (460 , self.height - 1000),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Code_box("code_box", "level_4/Pipe_line.png", (-230 , self.height - 680),
-           size=(0.1, 0.1), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Power_Bank("power_bank", "level_4/power_bank.png", (640 , self.height - 680),
-           size=(0.09, 0.09), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Cheese_man("cheese_toy", "level_4/Mr_Cheese.png.gif", (60 , - self.height - 75),
-           size=(0.1, 0.1), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Grey_Mouse("grey_mouse", "level_4/Grey_Mouse.png", (70, self.height - 685),
-           size=(0.13, 0.13), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Red_Mouse("red_mouse", "level_4/Red_Mouse.png", (360, self.height - 685),
-           size=(0.13, 0.13), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Barrel("barrel", "level_4/Barrel.png", (640 , self.height - 960),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Emty_Barrel("barrel", "level_4/Barrel.png", (-750 , self.height - 755),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height),
-        
-        Emty_Barrel("barrel", "level_4/Barrel.png", (-130 , -self.height + 620),
-           size=(0.8, 0.8), collision=False, interactable=True,
-           screen_width=self.width, screen_height=self.height)
-            ]
+                Door("door", "Main/exit.png", (-130 , self.height - 660),
+                size=(0.1, 0.1), collision=False, interactable=False,
+                screen_width=self.width, screen_height=self.height),
+                
+                Vent_6("vent", "level_4/vent.png", (85 , 100),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Vent_7("vent", "level_4/vent.png", (-30 , - self.height - 75),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Vent_6("vent", "level_4/vent.png", (-610 , self.height - 780),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Vent_7("vent", "level_4/vent.png", (460 , self.height - 1000),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Code_box("code_box", "level_4/Pipe_line.png", (-230 , self.height - 680),
+                size=(0.1, 0.1), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Power_Bank("power_bank", "level_4/power_bank.png", (640 , self.height - 680),
+                size=(0.09, 0.09), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Cheese_man("cheese_toy", "level_4/Mr_Cheese.png.gif", (60 , - self.height - 75),
+                size=(0.1, 0.1), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Grey_Mouse("grey_mouse", "level_4/Grey_Mouse.png", (70, self.height - 685),
+                size=(0.13, 0.13), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Red_Mouse("red_mouse", "level_4/Red_Mouse.png", (360, self.height - 685),
+                size=(0.13, 0.13), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Barrel("barrel", "level_4/Barrel.png", (640 , self.height - 960),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Emty_Barrel("barrel", "level_4/Barrel.png", (-750 , self.height - 755),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height),
+                
+                Emty_Barrel("barrel", "level_4/Barrel.png", (-130 , -self.height + 620),
+                size=(0.8, 0.8), collision=False, interactable=True,
+                screen_width=self.width, screen_height=self.height)
+                ]   
             
             self.background = pygame.image.load("level_4/sewer.png").convert_alpha()
             self.background = pygame.transform.scale(self.background, (self.width, self.height))
