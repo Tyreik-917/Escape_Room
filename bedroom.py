@@ -74,28 +74,22 @@ class Player:
             dy *= diag
 
         self.moving = dx != 0 or dy != 0
-        if dx < 0:
-            self.facing_right = False
-        elif dx > 0:
-            self.facing_right = True
+        if dx < 0: self.facing_right = False
+        elif dx > 0: self.facing_right = True
 
-        # Horizontal collision
+        # Horizontal movement and collision
         self.rect.x += int(dx * self.speed * dt)
         for o in boundaries:
             if self.rect.colliderect(o):
-                if dx > 0:
-                    self.rect.right = o.left
-                elif dx < 0:
-                    self.rect.left = o.right
+                if dx > 0: self.rect.right = o.left
+                elif dx < 0: self.rect.left = o.right
 
-        # Vertical collision
+        # Vertical movement and collision
         self.rect.y += int(dy * self.speed * dt)
         for o in boundaries:
             if self.rect.colliderect(o):
-                if dy > 0:
-                    self.rect.bottom = o.top
-                elif dy < 0:
-                    self.rect.top = o.bottom
+                if dy > 0: self.rect.bottom = o.top
+                elif dy < 0: self.rect.top = o.bottom
 
         # Animation
         if self.has_sprites:
@@ -140,7 +134,7 @@ class Door:
         self.rect = pygame.Rect(rect)
         self.locked = locked
         self.open = False
-        self.open_progress = 0
+        self.open_progress = 0 # 0 = closed, 1 = fully open
 
     def draw(self, surf, door_img=None):
         if door_img:
@@ -153,11 +147,10 @@ class Door:
             surf.blit(img, self.rect.topleft)
         else:
             pygame.draw.rect(surf, (90, 50, 18), self.rect)
-
         label = "Locked (E)" if self.locked else "Unlocked (E)"
         draw_text(surf, label, (self.rect.x, self.rect.y - 26))
 
-# Color Memory Game
+# Color Memory Minigame
 class ColorMemoryGame:
     def __init__(self, screen):
         self.screen = screen
@@ -181,8 +174,7 @@ class ColorMemoryGame:
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                if event.type == pygame.QUIT: pygame.quit(); sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q: return False
                     if event.key == pygame.K_SPACE: waiting = False
@@ -193,7 +185,7 @@ class ColorMemoryGame:
             draw_text(self.screen,"Press Q to quit",(440,350),WHITE)
             pygame.display.flip()
 
-        # Game loop
+        # Game sequence loop
         while True:
             sequence = []
             prev = -1
@@ -209,8 +201,7 @@ class ColorMemoryGame:
             playing = True
             while playing:
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit(); sys.exit()
+                    if event.type == pygame.QUIT: pygame.quit(); sys.exit()
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                         return False
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -236,28 +227,22 @@ class ColorMemoryGame:
                     pygame.display.flip()
                     pygame.time.wait(1000)
 
-# Game Class
+# Escape Room Background
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH,HEIGHT))
         pygame.display.set_caption("Escape Room: Bedroom")
         self.clock = CLOCK
+        self.bg = pygame.image.load("bedroom.png").convert() # Background image
+        self.bg = pygame.transform.smoothscale(self.bg,(WIDTH,HEIGHT)) # Background Image Size
+        self.door_img = pygame.image.load("door.png").convert_alpha() # Door Image
+        self.door_img = pygame.transform.smoothscale(self.door_img,(92,192)) # Door Image Size
+        self.door = Door((450,0,92,192), locked=True) # Door Position
+        self.dresser_img = pygame.image.load("dresser.png").convert_alpha() # Dresser Image
+        self.dresser_img = pygame.transform.smoothscale(self.dresser_img,(100,150)) # Dresser Image Size
+        self.dresser_rect = pygame.Rect(250,94,100,150) # Dresser Position
 
-        # Images
-        self.bg = pygame.image.load("bedroom.png").convert()
-        self.bg = pygame.transform.smoothscale(self.bg,(WIDTH,HEIGHT))
-
-        self.door_img = pygame.image.load("door.png").convert_alpha()
-        self.door_img = pygame.transform.smoothscale(self.door_img,(92,192))
-
-        self.dresser_img = pygame.image.load("dresser.png").convert_alpha()
-        self.dresser_img = pygame.transform.smoothscale(self.dresser_img,(100,150))
-
-        # Objects
-        self.door = Door((450,0,92,192), locked=True)
-        self.dresser_rect = pygame.Rect(250,94,100,150)
-
-        self.player = Player(500, 350)
+        self.player = Player(500, 350) # Player Start Position
         self.message = "Press E near the dresser to play the memory game."
         self.show_inventory = False
         self.win = False
@@ -269,10 +254,8 @@ class Game:
         self.dresser_used = False
 
         self.boundaries = [
-            pygame.Rect(0,0,WIDTH,6),
-            pygame.Rect(0,HEIGHT-6,WIDTH,6),
-            pygame.Rect(0,0,6,HEIGHT),
-            pygame.Rect(WIDTH-6,0,6,HEIGHT)
+            pygame.Rect(0,0,WIDTH,6), pygame.Rect(0,HEIGHT-6,WIDTH,6),
+            pygame.Rect(0,0,6,HEIGHT), pygame.Rect(WIDTH-6,0,6,HEIGHT)
         ]
 
     def reset(self):
@@ -283,18 +266,13 @@ class Game:
         self.player.handle_input_and_move(keys,dt,self.boundaries)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
+            if event.type == pygame.QUIT: pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_e:
-                    self.try_interact()
-                if event.key == pygame.K_i:
-                    self.show_inventory = not self.show_inventory
-                if event.key == pygame.K_r:
-                    self.reset()
+                if event.key == pygame.K_e: self.try_interact()
+                if event.key == pygame.K_i: self.show_inventory = not self.show_inventory
+                if event.key == pygame.K_r: self.reset()
 
-    def try_interact(self):
-        # Dresser interaction
+    def try_interact(self): # Dresser interaction
         if not self.dresser_used and self.player.rect.colliderect(self.dresser_rect.inflate(20,20)):
             mem = ColorMemoryGame(self.screen)
             won = mem.run()
@@ -323,7 +301,7 @@ class Game:
 
     def update(self,dt):
         if self.door.open and self.door.open_progress < 1.0:
-            self.door.open_progress += dt
+            self.door.open_progress += dt # animate door opening
 
     def draw(self):
         self.screen.blit(self.bg,(0,0))
@@ -351,12 +329,12 @@ class Game:
         else:
             pygame.draw.circle(self.screen,(30,90,200),(cx,cy),PLAYER_RADIUS)
 
-        # UI Bar
+        # Draw inventory status
         pygame.draw.rect(self.screen,(240,240,240),(8,HEIGHT-52,WIDTH-16,44))
         draw_text(self.screen, self.message, (16,HEIGHT-44))
         draw_text(self.screen, "Inventory: " + (", ".join(self.player.inventory) if self.player.inventory else "(empty)"), (16,8))
 
-        # Win overlay
+        # Draw Win screen overlay
         if self.win:
             overlay = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
             overlay.fill((0,0,0,160))
