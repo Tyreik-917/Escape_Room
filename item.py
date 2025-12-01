@@ -655,7 +655,7 @@ class Vent_6(Item):
         self.show_message("You found a clue!", 3)
 
         # Change sprite
-        self.image = pygame.image.load("level_4/6.png").convert_alpha()
+        self.image = pygame.image.load("level_4/code_6.png").convert_alpha()
         
         new_width = 90   
         new_height = 90
@@ -677,7 +677,7 @@ class Vent_7(Item):
         self.show_message("You found a clue!", 3)
 
         # Change sprite
-        self.image = pygame.image.load("level_4/7.png").convert_alpha()
+        self.image = pygame.image.load("level_4/code_7.png").convert_alpha()
         
         new_width = 90   
         new_height = 90
@@ -700,29 +700,84 @@ class Code_box(Item):
     def interact(self):
         """Open keypad when player interacts."""
         self.keypad.open()
+        
+        info = pygame.display.Info()
+        width, height = info.current_w, info.current_h
+        half_w, half_h = width // 2, height // 2
+        
+        keys_width = 40
+        keys_height = 40
+        
+        keys = ['level_4/1.png','level_4/2.png','level_4/3.png','level_4/4.png','level_4/5.png','level_4/6.png','level_4/7.png','level_4/8.png','level_4/9.png']
+        
+        keys_images = [
+            pygame.transform.scale(
+                pygame.image.load(b).convert_alpha(),
+                (keys_width, keys_height)
+            ) for b in keys
+        ]
+        
+        puzzle_img = pygame.image.load("level_4/key_pad.png").convert_alpha()
+        puzzle_img = pygame.transform.scale(puzzle_img, (half_w, half_h))
+        puzzle_rect = puzzle_img.get_rect(center=(half_w, half_h))
+        
+        clock = pygame.time.Clock()
+        
+        while puzzle_active:
+            dt = clock.tick(60)
+            screen = pygame.display.get_surface()
 
-    def handle_keypad(self, event):
-        """Must be called from your Level's event loop."""
-        if not self.keypad.active:
-            return
+            # Redraw level behind puzzle
+            if hasattr(self, "level"):
+                self.level.draw(screen, self.level.items[0].rect)
 
-        result = self.keypad.handle_event(event)
+            # Draw puzzle backdrop
+            screen.blit(puzzle_img, puzzle_rect.topleft)
+            
+            #INPUT HANDLE
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
 
-        if result == "UNLOCKED":
-            self.show_message("Password accepted!", 3)
-            self.level.puzzles_solved += 1
-            self.is_finished = True
-            self.interactable = False
-            self.reinteractable = False
-            self.keypad.close()
+                elif event.type == pygame.KEYDOWN:
+                    if audioplaying != True:
 
-        elif result == "RESET":
-            self.show_message("Wrong code, try again.", 2)
+                        # Exit puzzle
+                        if event.key == pygame.K_ESCAPE:
+                            puzzle_active = False
 
-    def draw_keypad(self, screen):
-        """Call this inside your main draw loop."""
-        self.keypad.draw(screen)
+                        # Move left
+                        elif event.key == pygame.K_a:
+                            cursor_index = max(0, cursor_index - 1)
 
+                        # Move right
+                        elif event.key == pygame.K_d:
+                            cursor_index = min(len(keys_images) - 1, cursor_index + 1)
+
+                        # Select book
+                        elif event.key == pygame.K_e:
+                            selected_key = keys[cursor_index]
+                            
+                # PUZZLE COMPLETED CORRECTLY
+            if order == correct_order:
+                self.show_message("While cleaning you found a feather within a book", 3)
+                feather = True
+                self.is_finished = True
+                self.interactable = False
+                self.reinteractable = False
+                puzzle_active = False
+                return
+
+            # PUZZLE FINISHED BUT WRONG
+            if len(order) == len(correct_order) and order != correct_order:
+                self.show_message("You're so messy, try again whenever you want.", 3)
+                return
+
+            pygame.display.flip()
+
+            # Track whether audio is currently playing
+            audioplaying = pygame.mixer.get_busy()
 class Power_Bank(Item):
     def interact(self):
         battery_status = globals().get('battery', False)
