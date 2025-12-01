@@ -47,8 +47,9 @@ class Level:
         # LEVELS 2, 3, AND 4 (placeholder functionality)
         # --------------------------------------------------
         elif level_id == 2:
-            self.items = [ Door("door", "table.png", (0, 0), (1,1), False, True) ]
-            self.background = pygame.image.load("background.png")
+            self.items = [ Door("door", "door.png", (0, 0), (1,1), False, True) ]
+            self.items = [ Dresser("dresser", "dresser.png", (0, 0), (1,1), False, True) ]
+            self.background = pygame.image.load("bedroom.png")
 
         elif level_id == 3:
             self.items = [ Door("door", "table.png", (0, 0), (1,1), False, True) ]
@@ -174,3 +175,4 @@ class Level:
             if item.collides_with(player_rect) and item.collision:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
+
