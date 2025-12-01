@@ -5,7 +5,7 @@ import random
 # Configuration
 WIDTH, HEIGHT = 1000, 600
 FPS = 60
-PLAYER_SPEED = 180 #pixels per second
+PLAYER_SPEED = 180  # pixels per second
 PLAYER_RADIUS = 14
 
 # Colors
@@ -22,7 +22,14 @@ def draw_text(surface, text, pos, color=BLACK, font=FONT):
     surf = font.render(text, True, color)
     surface.blit(surf, pos)
 
-#Player Class
+# Glow helper function
+def draw_glow(surface, rect, color=(255,255,100,160), padding=6):
+    glow_rect = rect.inflate(padding*2, padding*2)
+    glow_surf = pygame.Surface((glow_rect.width, glow_rect.height), pygame.SRCALPHA)
+    pygame.draw.rect(glow_surf, color, glow_surf.get_rect(), border_radius=12)
+    surface.blit(glow_surf, glow_rect.topleft)
+
+# Player Class
 class Player:
     def __init__(self, x, y, sprite_size=64):
         self.sprite_size = sprite_size
@@ -31,6 +38,7 @@ class Player:
         self.speed = PLAYER_SPEED
         self.frames = []
         self.has_sprites = False
+
         try:
             for name in ("idle.png", "walk_1.png", "walk_2.png"):
                 img = pygame.image.load(name).convert_alpha()
@@ -66,23 +74,30 @@ class Player:
             dy *= diag
 
         self.moving = dx != 0 or dy != 0
-        if dx < 0: self.facing_right = False
-        elif dx > 0: self.facing_right = True
+        if dx < 0:
+            self.facing_right = False
+        elif dx > 0:
+            self.facing_right = True
 
-        # Horizontal movement and collision
+        # Horizontal collision
         self.rect.x += int(dx * self.speed * dt)
         for o in boundaries:
             if self.rect.colliderect(o):
-                if dx > 0: self.rect.right = o.left
-                elif dx < 0: self.rect.left = o.right
+                if dx > 0:
+                    self.rect.right = o.left
+                elif dx < 0:
+                    self.rect.left = o.right
 
-        # Vertical movement and collision
+        # Vertical collision
         self.rect.y += int(dy * self.speed * dt)
         for o in boundaries:
             if self.rect.colliderect(o):
-                if dy > 0: self.rect.bottom = o.top
-                elif dy < 0: self.rect.top = o.bottom
+                if dy > 0:
+                    self.rect.bottom = o.top
+                elif dy < 0:
+                    self.rect.top = o.bottom
 
+        # Animation
         if self.has_sprites:
             if self.moving:
                 self.frame_index += self.animation_speed * dt
@@ -102,7 +117,8 @@ class Player:
 
     def center_pos(self):
         return self.rect.center
-#Item Class
+
+# Item Class
 class Item:
     def __init__(self, name, rect, color=(240, 220, 100)):
         self.name = name
@@ -118,13 +134,14 @@ class Item:
     def is_near(self, player_rect, margin=24):
         return player_rect.colliderect(self.rect.inflate(margin, margin))
 
-#Door Class
+# Door Class
 class Door:
     def __init__(self, rect, locked=True):
         self.rect = pygame.Rect(rect)
         self.locked = locked
         self.open = False
-        self.open_progress = 0 # 0 = closed, 1 = fully open
+        self.open_progress = 0
+
     def draw(self, surf, door_img=None):
         if door_img:
             if self.open:
@@ -136,10 +153,11 @@ class Door:
             surf.blit(img, self.rect.topleft)
         else:
             pygame.draw.rect(surf, (90, 50, 18), self.rect)
+
         label = "Locked (E)" if self.locked else "Unlocked (E)"
         draw_text(surf, label, (self.rect.x, self.rect.y - 26))
 
-#Color Memory Minigame
+# Color Memory Game
 class ColorMemoryGame:
     def __init__(self, screen):
         self.screen = screen
@@ -158,12 +176,13 @@ class ColorMemoryGame:
             pygame.time.wait(800)
         pygame.time.wait(800)
 
-    #Start screen & End screen
     def run(self):
+        # Start screen
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+                if event.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q: return False
                     if event.key == pygame.K_SPACE: waiting = False
@@ -174,7 +193,7 @@ class ColorMemoryGame:
             draw_text(self.screen,"Press Q to quit",(440,350),WHITE)
             pygame.display.flip()
 
-        #Game sequence loop
+        # Game loop
         while True:
             sequence = []
             prev = -1
@@ -186,10 +205,12 @@ class ColorMemoryGame:
                 prev = c
             idx = 0
             self.play_sequence(sequence)
+
             playing = True
             while playing:
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+                    if event.type == pygame.QUIT:
+                        pygame.quit(); sys.exit()
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                         return False
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -202,42 +223,56 @@ class ColorMemoryGame:
                                         return True
                                 else:
                                     playing = False
+
                 self.screen.fill(BLACK)
                 for i, box in enumerate(self.boxes):
                     pygame.draw.rect(self.screen, self.colors[i], box)
                     draw_text(self.screen,self.color_names[i],(box.x+10,box.y-26),WHITE)
                 pygame.display.flip()
+
                 if not playing:
                     self.screen.fill(BLACK)
                     draw_text(self.screen,"WRONG! Try Again.",(380,200),WHITE)
                     pygame.display.flip()
                     pygame.time.wait(1000)
 
-#Escape Room Background
+# Game Class
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH,HEIGHT))
         pygame.display.set_caption("Escape Room: Bedroom")
         self.clock = CLOCK
-        self.bg = pygame.image.load("bedroom.png").convert() #Background image
-        self.bg = pygame.transform.smoothscale(self.bg,(WIDTH,HEIGHT)) #Background image size
-        self.door_img = pygame.image.load("door.png").convert_alpha() #Door image
-        self.door_img = pygame.transform.smoothscale(self.door_img,(92,192)) #Door image size
-        self.door = Door((450,0,92,192), locked=True) #Door position
-        self.dresser_img = pygame.image.load("dresser.png").convert_alpha() #Dresser image
-        self.dresser_img = pygame.transform.smoothscale(self.dresser_img,(100,150)) #Dresser image size
-        self.dresser_rect = pygame.Rect(250,94,100,150) #Dresser position
-        self.player = Player(500, 350) #Player Start Position
+
+        # Images
+        self.bg = pygame.image.load("bedroom.png").convert()
+        self.bg = pygame.transform.smoothscale(self.bg,(WIDTH,HEIGHT))
+
+        self.door_img = pygame.image.load("door.png").convert_alpha()
+        self.door_img = pygame.transform.smoothscale(self.door_img,(92,192))
+
+        self.dresser_img = pygame.image.load("dresser.png").convert_alpha()
+        self.dresser_img = pygame.transform.smoothscale(self.dresser_img,(100,150))
+
+        # Objects
+        self.door = Door((450,0,92,192), locked=True)
+        self.dresser_rect = pygame.Rect(250,94,100,150)
+
+        self.player = Player(500, 350)
         self.message = "Press E near the dresser to play the memory game."
         self.show_inventory = False
         self.win = False
+
         self.key = Item("Key",(110, 10, 20, 12))
         self.key.picked = True
         self.items = [self.key]
+
         self.dresser_used = False
+
         self.boundaries = [
-            pygame.Rect(0,0,WIDTH,6), pygame.Rect(0,HEIGHT-6,WIDTH,6),
-            pygame.Rect(0,0,6,HEIGHT), pygame.Rect(WIDTH-6,0,6,HEIGHT)
+            pygame.Rect(0,0,WIDTH,6),
+            pygame.Rect(0,HEIGHT-6,WIDTH,6),
+            pygame.Rect(0,0,6,HEIGHT),
+            pygame.Rect(WIDTH-6,0,6,HEIGHT)
         ]
 
     def reset(self):
@@ -248,13 +283,18 @@ class Game:
         self.player.handle_input_and_move(keys,dt,self.boundaries)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_e: self.try_interact()
-                if event.key == pygame.K_i: self.show_inventory = not self.show_inventory
-                if event.key == pygame.K_r: self.reset()
+                if event.key == pygame.K_e:
+                    self.try_interact()
+                if event.key == pygame.K_i:
+                    self.show_inventory = not self.show_inventory
+                if event.key == pygame.K_r:
+                    self.reset()
 
-    def try_interact(self): #Dresser Interaction
+    def try_interact(self):
+        # Dresser interaction
         if not self.dresser_used and self.player.rect.colliderect(self.dresser_rect.inflate(20,20)):
             mem = ColorMemoryGame(self.screen)
             won = mem.run()
@@ -283,18 +323,27 @@ class Game:
 
     def update(self,dt):
         if self.door.open and self.door.open_progress < 1.0:
-            self.door.open_progress += dt # animate door opening
+            self.door.open_progress += dt
 
     def draw(self):
         self.screen.blit(self.bg,(0,0))
+
+        # Dresser glows if player is near
+        if self.player.rect.colliderect(self.dresser_rect.inflate(40,40)):
+            draw_glow(self.screen, self.dresser_rect)
+
+        # Draw dresser image
         self.screen.blit(self.dresser_img, self.dresser_rect.topleft)
 
+        # Items
         for item in self.items:
             if not item.picked:
                 item.draw(self.screen)
 
+        # Door
         self.door.draw(self.screen, self.door_img)
 
+        # Player
         surf = self.player.get_draw_surface()
         cx, cy = self.player.center_pos()
         if surf:
@@ -302,12 +351,12 @@ class Game:
         else:
             pygame.draw.circle(self.screen,(30,90,200),(cx,cy),PLAYER_RADIUS)
 
-        # Draw inventory status
+        # UI Bar
         pygame.draw.rect(self.screen,(240,240,240),(8,HEIGHT-52,WIDTH-16,44))
         draw_text(self.screen, self.message, (16,HEIGHT-44))
         draw_text(self.screen, "Inventory: " + (", ".join(self.player.inventory) if self.player.inventory else "(empty)"), (16,8))
 
-        # Draw WIN screen overlay
+        # Win overlay
         if self.win:
             overlay = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
             overlay.fill((0,0,0,160))
