@@ -23,7 +23,7 @@ def draw_text(surface, text, pos, color=BLACK, font=FONT):
     surface.blit(surf, pos)
 
 # Glow helper function
-def draw_glow(surface, rect, color=(255,255,100,160), padding=6):
+def draw_glow(surface, rect, color=(255, 255, 100, 160), padding=6):
     glow_rect = rect.inflate(padding*2, padding*2)
     glow_surf = pygame.Surface((glow_rect.width, glow_rect.height), pygame.SRCALPHA)
     pygame.draw.rect(glow_surf, color, glow_surf.get_rect(), border_radius=12)
@@ -155,14 +155,14 @@ class ColorMemoryGame:
     def __init__(self, screen):
         self.screen = screen
         self.colors = [(255, 0, 0),(0, 255, 0),(0, 0, 255),(128, 128, 128)]
-        self.color_names = ["Red","Green","Blue","Gray"]
+        self.color_names = ["Red", "Green", "Blue", "Gray"]
         self.boxes = [pygame.Rect(200 + i*150, 300, 100, 100) for i in range(4)]
 
     def play_sequence(self, sequence):
         for color in sequence:
             self.screen.fill(BLACK)
             for i, box in enumerate(self.boxes):
-                clr = self.colors[i] if i == color else (60,60,60)
+                clr = self.colors[i] if i == color else (60, 60, 60)
                 pygame.draw.rect(self.screen, clr, box)
                 draw_text(self.screen, self.color_names[i], (box.x+8, box.y-24), WHITE)
             pygame.display.flip()
@@ -180,9 +180,9 @@ class ColorMemoryGame:
                     if event.key == pygame.K_SPACE: waiting = False
 
             self.screen.fill(BLACK)
-            draw_text(self.screen,"COLOR MEMORY GAME",(400, 200),WHITE)
-            draw_text(self.screen,"Press SPACE to begin",(405, 300),WHITE)
-            draw_text(self.screen,"Press Q to quit",(440,350),WHITE)
+            draw_text(self.screen, "COLOR MEMORY GAME", (400, 200), WHITE)
+            draw_text(self.screen, "Press SPACE to begin", (405, 300), WHITE)
+            draw_text(self.screen, "Press Q to quit", (440, 350), WHITE)
             pygame.display.flip()
 
         # Game sequence loop
@@ -190,9 +190,9 @@ class ColorMemoryGame:
             sequence = []
             prev = -1
             for _ in range(4):
-                c = random.randint(0,3)
+                c = random.randint(0, 3)
                 while c == prev:
-                    c = random.randint(0,3)
+                    c = random.randint(0, 3)
                 sequence.append(c)
                 prev = c
             idx = 0
@@ -207,7 +207,7 @@ class ColorMemoryGame:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mx, my = event.pos
                         for i, box in enumerate(self.boxes):
-                            if box.collidepoint(mx,my):
+                            if box.collidepoint(mx, my):
                                 if i == sequence[idx]:
                                     idx += 1
                                     if idx == len(sequence):
@@ -215,55 +215,71 @@ class ColorMemoryGame:
                                 else:
                                     playing = False
 
+                # Hover Highlighting
+                mx, my = pygame.mouse.get_pos()
                 self.screen.fill(BLACK)
                 for i, box in enumerate(self.boxes):
-                    pygame.draw.rect(self.screen, self.colors[i], box)
-                    draw_text(self.screen,self.color_names[i],(box.x+10,box.y-26),WHITE)
+                    clr = self.colors[i]
+
+                    # Hover detection
+                    hovering = box.collidepoint(mx, my)
+
+                    if hovering:
+                        brighter = tuple(min(255, c + 60) for c in clr)
+                        pygame.draw.rect(self.screen, brighter, box)
+                        draw_glow(self.screen, box, color=(255, 255, 180, 160), padding=10)
+                    else:
+                        pygame.draw.rect(self.screen, clr, box)
+
+                    draw_text(self.screen, self.color_names[i], (box.x + 10, box.y - 26), WHITE)
+
                 pygame.display.flip()
 
                 if not playing:
+                    
                     self.screen.fill(BLACK)
-                    draw_text(self.screen,"WRONG! Try Again.",(380,200),WHITE)
+                    draw_text(self.screen, "WRONG! Try Again.", (380, 200), WHITE)
                     pygame.display.flip()
                     pygame.time.wait(1000)
 
 # Escape Room Background
 class Game:
     def __init__(self):
-        self.screen = pygame.display.set_mode((WIDTH,HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Escape Room: Bedroom")
         self.clock = CLOCK
+
         self.bg = pygame.image.load("bedroom.png").convert() # Background image
-        self.bg = pygame.transform.smoothscale(self.bg,(WIDTH,HEIGHT)) # Background Image Size
+        self.bg = pygame.transform.smoothscale(self.bg, (WIDTH, HEIGHT)) # Background Image Size
         self.door_img = pygame.image.load("door.png").convert_alpha() # Door Image
-        self.door_img = pygame.transform.smoothscale(self.door_img,(92,192)) # Door Image Size
-        self.door = Door((450,0,92,192), locked=True) # Door Position
+        self.door_img = pygame.transform.smoothscale(self.door_img, (92, 192)) # Door Image Size
+        self.door = Door((450, 0, 92, 192), locked=True) # Door Position
         self.dresser_img = pygame.image.load("dresser.png").convert_alpha() # Dresser Image
-        self.dresser_img = pygame.transform.smoothscale(self.dresser_img,(100,150)) # Dresser Image Size
-        self.dresser_rect = pygame.Rect(250,94,100,150) # Dresser Position
+        self.dresser_img = pygame.transform.smoothscale(self.dresser_img, (100, 150)) # Dresser Image Size
+        self.dresser_rect = pygame.Rect(250, 94, 100, 150) # Dresser Position
 
         self.player = Player(500, 350) # Player Start Position
         self.message = "Press E near the dresser to play the memory game."
         self.show_inventory = False
         self.win = False
 
-        self.key = Item("Key",(110, 10, 20, 12))
+        self.key = Item("Key", (110, 10, 20, 12))
         self.key.picked = True
         self.items = [self.key]
 
         self.dresser_used = False
 
         self.boundaries = [
-            pygame.Rect(0,0,WIDTH,6), pygame.Rect(0,HEIGHT-6,WIDTH,6),
-            pygame.Rect(0,0,6,HEIGHT), pygame.Rect(WIDTH-6,0,6,HEIGHT)
+            pygame.Rect(0, 0, WIDTH, 6), pygame.Rect(0, HEIGHT - 6, WIDTH, 6),
+            pygame.Rect(0, 0, 6, HEIGHT), pygame.Rect(WIDTH - 6, 0, 6, HEIGHT)
         ]
 
     def reset(self):
         self.__init__()
 
-    def handle_events(self,dt):
+    def handle_events(self, dt):
         keys = pygame.key.get_pressed()
-        self.player.handle_input_and_move(keys,dt,self.boundaries)
+        self.player.handle_input_and_move(keys, dt, self.boundaries)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: pygame.quit(); sys.exit()
@@ -273,7 +289,7 @@ class Game:
                 if event.key == pygame.K_r: self.reset()
 
     def try_interact(self): # Dresser interaction
-        if not self.dresser_used and self.player.rect.colliderect(self.dresser_rect.inflate(20,20)):
+        if not self.dresser_used and self.player.rect.colliderect(self.dresser_rect.inflate(20, 20)):
             mem = ColorMemoryGame(self.screen)
             won = mem.run()
             self.dresser_used = True
@@ -287,7 +303,7 @@ class Game:
             return
 
         # Door
-        if self.player.rect.colliderect(self.door.rect.inflate(12,12)):
+        if self.player.rect.colliderect(self.door.rect.inflate(12, 12)):
             if self.door.locked:
                 if "Key" in self.player.inventory:
                     self.door.locked = False
@@ -299,18 +315,17 @@ class Game:
                 self.win = True
                 self.message = "You escaped! Press R to restart."
 
-    def update(self,dt):
+    def update(self, dt):
         if self.door.open and self.door.open_progress < 1.0:
             self.door.open_progress += dt # animate door opening
 
     def draw(self):
-        self.screen.blit(self.bg,(0,0))
+        self.screen.blit(self.bg, (0, 0))
 
         # Dresser glows if player is near
-        if self.player.rect.colliderect(self.dresser_rect.inflate(40,40)):
+        if self.player.rect.colliderect(self.dresser_rect.inflate(40, 40)):
             draw_glow(self.screen, self.dresser_rect)
-
-        # Draw dresser image
+        # Draw dresser
         self.screen.blit(self.dresser_img, self.dresser_rect.topleft)
 
         # Items
@@ -324,22 +339,23 @@ class Game:
         # Player
         surf = self.player.get_draw_surface()
         cx, cy = self.player.center_pos()
+
         if surf:
-            self.screen.blit(surf, surf.get_rect(center=(cx,cy)))
+            self.screen.blit(surf, surf.get_rect(center=(cx, cy)))
         else:
-            pygame.draw.circle(self.screen,(30,90,200),(cx,cy),PLAYER_RADIUS)
+            pygame.draw.circle(self.screen, (30, 90, 200), (cx, cy), PLAYER_RADIUS)
 
         # Draw inventory status
-        pygame.draw.rect(self.screen,(240,240,240),(8,HEIGHT-52,WIDTH-16,44))
-        draw_text(self.screen, self.message, (16,HEIGHT-44))
-        draw_text(self.screen, "Inventory: " + (", ".join(self.player.inventory) if self.player.inventory else "(empty)"), (16,8))
+        pygame.draw.rect(self.screen, (240, 240, 240), (8, HEIGHT - 52, WIDTH - 16, 44))
+        draw_text(self.screen, self.message, (16, HEIGHT - 44))
+        draw_text(self.screen, "Inventory: " + (", ".join(self.player.inventory) if self.player.inventory else "(empty)"), (16, 8))
 
         # Draw Win screen overlay
         if self.win:
-            overlay = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
-            overlay.fill((0,0,0,160))
-            self.screen.blit(overlay,(0,0))
-            draw_text(self.screen,"YOU ESCAPED!",(WIDTH//2 - 80,HEIGHT//2 - 40),WHITE,BIGFONT)
+            overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 160))
+            self.screen.blit(overlay, (0, 0))
+            draw_text(self.screen, "YOU ESCAPED!", (WIDTH // 2 - 80, HEIGHT // 2 - 40), WHITE, BIGFONT)
 
     def run(self):
         while True:
