@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+from pathlib import Path
 
 # Configuration
 WIDTH, HEIGHT = 1000, 600
@@ -13,7 +14,13 @@ WHITE = (255, 255, 255)
 BLACK = (20, 20, 20)
 WALL = (200, 220, 235)
 
+# Initialize pygame and mixer
 pygame.init()
+try:
+    pygame.mixer.init()
+except Exception as e:
+    print("Warning: pygame.mixer couldn't initialize:", e)
+
 FONT = pygame.font.SysFont("arial", 18)
 BIGFONT = pygame.font.SysFont("arial", 28)
 CLOCK = pygame.time.Clock()
@@ -158,6 +165,16 @@ class ColorMemoryGame:
         self.color_names = ["Red", "Green", "Blue", "Gray"]
         self.boxes = [pygame.Rect(200 + i*150, 300, 100, 100) for i in range(4)]
 
+        # Load ding sound
+        try:
+            if Path("ding.mp3").exists():
+                self.ding_sound = pygame.mixer.Sound("ding.mp3")
+            else:
+                self.ding_sound = None
+        except Exception as e:
+            print("Warning: could not load ding.mp3:", e)
+            self.ding_sound = None
+
     def play_sequence(self, sequence):
         for color in sequence:
             self.screen.fill(BLACK)
@@ -199,35 +216,65 @@ class ColorMemoryGame:
             self.play_sequence(sequence)
 
             playing = True
+            clicked_color = None      # the last clicked color (for persistent lighting)
+            last_clicked_input = None # prevents counting the same click twice in a row
+
             while playing:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT: pygame.quit(); sys.exit()
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                         return False
-                    if event.type == pygame.MOUSEBUTTONDOWN:
+
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         mx, my = event.pos
                         for i, box in enumerate(self.boxes):
                             if box.collidepoint(mx, my):
+                                # ignore if this is the same immediate repeated click
+                                if last_clicked_input == i:
+                                    # do nothing; ignore duplicate immediate click
+                                    break
+
+                                # set clicked color so it stays lit
+                                clicked_color = i
+                                last_clicked_input = i
+
+                                # play ding sound when clicked
+                                if self.ding_sound:
+                                    try:
+                                        self.ding_sound.play()
+                                    except Exception:
+                                        pass
+
+                                # check correctness of input
                                 if i == sequence[idx]:
                                     idx += 1
+                                    # if sequence complete, player wins this round
                                     if idx == len(sequence):
                                         return True
                                 else:
                                     playing = False
+                                break
+
+                    # reset last_clicked_input on mouseup so repeated presses require real releasing
+                    if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                        last_clicked_input = None
 
                 # Hover Highlighting
                 mx, my = pygame.mouse.get_pos()
                 self.screen.fill(BLACK)
                 for i, box in enumerate(self.boxes):
                     clr = self.colors[i]
-
                     # Hover detection
                     hovering = box.collidepoint(mx, my)
 
-                    if hovering:
-                        brighter = tuple(min(255, c + 60) for c in clr)
-                        pygame.draw.rect(self.screen, brighter, box)
-                        draw_glow(self.screen, box, color=(255, 255, 180, 160), padding=10)
+                    if clicked_color == i:
+                        bright = tuple(min(255, c + 80) for c in clr)
+                        pygame.draw.rect(self.screen, bright, box)
+                        draw_glow(self.screen, box, (255, 255, 200, 180), 10)
+                    elif hovering:
+                        bright = tuple(min(255, c + 60) for c in clr)
+                        pygame.draw.rect(self.screen, bright, box)
+                        draw_glow(self.screen, box, (255, 255, 180, 160), 10)
                     else:
                         pygame.draw.rect(self.screen, clr, box)
 
@@ -235,12 +282,13 @@ class ColorMemoryGame:
 
                 pygame.display.flip()
 
+                # Incorrect - show message
                 if not playing:
-                    
                     self.screen.fill(BLACK)
                     draw_text(self.screen, "WRONG! Try Again.", (380, 200), WHITE)
                     pygame.display.flip()
                     pygame.time.wait(1000)
+                    break
 
 # Escape Room Background
 class Game:
@@ -248,7 +296,6 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Escape Room: Bedroom")
         self.clock = CLOCK
-
         self.bg = pygame.image.load("bedroom.png").convert() # Background image
         self.bg = pygame.transform.smoothscale(self.bg, (WIDTH, HEIGHT)) # Background Image Size
         self.door_img = pygame.image.load("door.png").convert_alpha() # Door Image
@@ -257,7 +304,6 @@ class Game:
         self.dresser_img = pygame.image.load("dresser.png").convert_alpha() # Dresser Image
         self.dresser_img = pygame.transform.smoothscale(self.dresser_img, (100, 150)) # Dresser Image Size
         self.dresser_rect = pygame.Rect(250, 94, 100, 150) # Dresser Position
-
         self.player = Player(500, 350) # Player Start Position
         self.message = "Press E near the dresser to play the memory game."
         self.show_inventory = False
@@ -321,21 +367,17 @@ class Game:
 
     def draw(self):
         self.screen.blit(self.bg, (0, 0))
-
         # Dresser glows if player is near
         if self.player.rect.colliderect(self.dresser_rect.inflate(40, 40)):
             draw_glow(self.screen, self.dresser_rect)
         # Draw dresser
         self.screen.blit(self.dresser_img, self.dresser_rect.topleft)
-
         # Items
         for item in self.items:
             if not item.picked:
                 item.draw(self.screen)
-
         # Door
         self.door.draw(self.screen, self.door_img)
-
         # Player
         surf = self.player.get_draw_surface()
         cx, cy = self.player.center_pos()
