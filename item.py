@@ -1,11 +1,12 @@
-# item.py
 import pygame
 import time
 import random
+from whackamole import WhackAMole
 
 # Screen constants (shared with the rest of the game)
-width = 1920
-height = 1080
+pygame.init()
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
 half_w = width // 2
 half_h = height // 2
 
@@ -340,7 +341,7 @@ class Bookshelf(Item):
 
         # Correct order of books
         correct_order = [
-            'agartha.png', 'level_1/blue_collar.png', 'level_1/domer.png', 'level_1/eye_of_rah.png',
+            'level_1/agartha.png', 'level_1/blue_collar.png', 'level_1/domer.png', 'level_1/eye_of_rah.png',
             'level_1/how_to_aura_farm.png', 'level_1/i_need_this.png', 'level_1/mi_bombo.png',
             'level_1/thank_you.png', 'level_1/the_art_of_67.png'
         ]
@@ -423,7 +424,7 @@ class Bookshelf(Item):
             pygame.draw.rect(screen, (255, 255, 255), box_rect)
             pygame.draw.rect(screen, (0, 0, 0), box_rect, 4)
 
-            font = pygame.font.Font("PressStart2P-Regular.ttf", 25)
+            font = pygame.font.Font("Main/PressStart2P-Regular.ttf", 25)
             screen.blit(font.render(message_1, True, (0, 0, 0)), (40, height - 100))
             screen.blit(font.render(message_2, True, (0, 0, 0)), (40, height - 45))
 
@@ -490,6 +491,42 @@ class Bookshelf(Item):
 
             # Track whether audio is currently playing
             audioplaying = pygame.mixer.get_busy()
+    
+class Hammer(Item):
+    def interact(self):
+        global has_hammer
+        self.show_message("You grabbed a hammer!", 3)
+        has_hammer = True
+
+       #pygame.mixer.Sound("level_3/hammer.mp3").play()
+
+        self.is_finished = True
+        self.reinteractable = False
+        self.is_active = False
+
+class Hole(Item):
+    def interact(self):
+        hammer_status = globals().get('has_hammer', False)
+
+        if not hammer_status:
+            self.show_message("You might need a tool for digging through this...", 3)
+
+        else:
+            game = WhackAMole()
+            score = game.run()
+
+            if score >= 10:
+                self.show_message("You cleared all the moles!", 3)
+                self.is_finished = True
+                self.reinteractable = False
+            else:
+                self.show_message(f"You were unable to clear all the moles ({score}/10).", 3)
+                
+
+
+ 
+        
+        
 
 
 

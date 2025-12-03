@@ -2,7 +2,9 @@ import pygame
 import time
 
 # Screen dimensions (used for movement boundaries)
-width, height = 1920, 1080
+pygame.init()
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
 center_x, center_y = width // 2, height // 2
 
 
@@ -19,7 +21,7 @@ class Player:
         self.rect.center = (x, y)
 
         # Movement speed in pixels per frame
-        self.speed = 5
+        self.speed = height/15
 
         # ---------------------------
         # ANIMATION SETUP
@@ -39,7 +41,7 @@ class Player:
 
         # Animation state tracking
         self.frame_index = 0
-        self.animation_speed = 0.15  # How fast animation cycles
+        self.animation_speed = 5  # How fast animation cycles
         self.moving = False           # True only when WASD pressed
         self.facing_right = True      # Flip horizontally when moving left
 

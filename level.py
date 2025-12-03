@@ -1,7 +1,11 @@
 import pygame
-from item import Item, Carpet, Statue_m, Statue_f, Picture, Door, Chest, Shovel, Knife, Trash, MusicBox, Bookshelf
+from item import Item, Carpet, Statue_m, Statue_f, Picture, Door, Chest, Shovel, Knife, Trash, MusicBox, Bookshelf, Hammer, Hole
 
-width, height = 1920//2, 1080//2
+pygame.init()
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
+print(width,height)
+width, height = width//2, height//2
 center_x, center_y = 0, 0
 
 class Level:
@@ -47,13 +51,21 @@ class Level:
         # LEVELS 2, 3, AND 4 (placeholder functionality)
         # --------------------------------------------------
         elif level_id == 2:
-            self.items = [ Door("door", "door.png", (0, 0), (1,1), False, True) ]
-            self.items = [ Dresser("dresser", "dresser.png", (0, 0), (1,1), False, True) ]         
-            self.background = pygame.image.load("bedroom.png")
-
-        elif level_id == 3:
             self.items = [ Door("door", "table.png", (0, 0), (1,1), False, True) ]
             self.background = pygame.image.load("background.png")
+
+
+        # CHRISTIAN LEVEL
+        elif level_id == 3:
+            self.items = [ #Door("door", "table.png", (0, 0), (1,1), False, True),
+                          Hammer("hammer","level_3/hammer.png",(0,200), (0.25,0.25), False, True),
+                          Hole("hole","level_3/holes.png",(0,-200), (0.5,0.5), False, True)
+                         ]
+            self.background = pygame.image.load("level_3/basement.png")
+            
+
+            self.show_message("It looks like I am in a basement", size=32, queue=True)
+            self.show_message("I wonder what this hole is", size=32, queue=True)
 
         elif level_id == 4:
             self.items = [ Door("door", "table.png", (0, 0), (1,1), False, True) ]
@@ -175,5 +187,3 @@ class Level:
             if item.collides_with(player_rect) and item.collision:
                 player_rect.x = old_pos.x
                 player_rect.y = old_pos.y
-
-

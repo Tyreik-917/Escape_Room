@@ -13,8 +13,8 @@ pygame.init()
 # Window / Display Setup
 # -----------------------------
 info = pygame.display.Info()
-width, height = info.current_w, info.current_h
-center_x, center_y = width // 2, height // 2
+width, height = 1536,864
+center_x, center_y = 1536 // 2, 864 // 2
 win = pygame.display.set_mode((width, height), pygame.FULLSCREEN) #Window
 clock = pygame.time.Clock()
 
