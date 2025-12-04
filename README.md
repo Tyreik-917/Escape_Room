@@ -6,6 +6,7 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 ***
 ## Project Description
 Its a Puzzle Escape room. 4 Levels, Each level has puzzles that need to be completed in order to go on to the next level.
+RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
 ***
 ## GUI Design
 ### Initial Design
