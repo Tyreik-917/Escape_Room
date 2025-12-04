@@ -36,6 +36,6 @@ RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
 | Step |Procedure |Expected Results |
 |----------------------|:--------------------:|----------------------------------:|
 | 1 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
-| 2 | Make Sure Every Item Is Interactable | Item Works When Clicked On/Press E To interact|
-| 3 |                    |                              |
+| 2 | Make Sure Every Item Is Interactable (Items That Glow) | Item Works When Clicked On/Press E To interact |
+| 3 | Make Sure Menu Works | Menu Works When You Want To Pause The Game/When you start and end the game |
 Etc...
