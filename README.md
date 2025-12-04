@@ -6,7 +6,7 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 ***
 ## Project Description
 Its a Puzzle Escape room. 4 Levels, Each level has puzzles that need to be completed in order to go on to the next level.
-RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
+**RESOLUTION NEEDS TO BE SET TO 1920 BY 1080**
 ***
 ## GUI Design
 ### Initial Design
@@ -38,6 +38,7 @@ RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
 | 1 | Run the Code | The Code Runs |
 | 2 | From Start Menu Quit | Quits The Game |
 | 3 | Run Code Again | Code Runs |
-| 4 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
-| 5 | Make Sure Every Item Is Interactable (Items That Glow) | Item Works When Clicked On/Press E To interact |
-| 6 | Make Sure Menu Works | Menu Works When You Want To Pause The Game/When you start and end the game |
+| 4 | From Start Menu Start The Game | The Game Starts |
+| 5 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
+| 6 | Make Sure Every Item Is Interactable (Items That Glow) | Item Works When Clicked On/Press E To interact |
+| 7 | Make Sure Menu Works | Menu Works When You Want To Pause The Game/When you start and end the game |
