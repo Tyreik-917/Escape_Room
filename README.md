@@ -35,8 +35,7 @@ RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
 ## ATP
 | Step |Procedure |Expected Results |
 |----------------------|:--------------------:|----------------------------------:|
-| 1 | Run Counter Program | GUI window appears with count
-= 0 |
-| 2 | click count button | display changes to count = 1 |
+| 1 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
+| 2 | Make Sure Every Item Is Interactable | Item Works When Clicked On/Press E To interact|
 | 3 |                    |                              |
 Etc...
