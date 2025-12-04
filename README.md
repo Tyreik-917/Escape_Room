@@ -5,7 +5,7 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 
 ***
 ## Project Description
-<< Give an overview of your project >>
+<< Give an overview of your project >
 ***
 ## GUI Design
 ### Initial Design
@@ -20,7 +20,11 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 4. << Feature 4 >>
 5. << Feature 5 >>
 ### Classes
-- << You should have a list of each of your classes with a description >>
+- Player Class
+- Item Class
+- Specific Item Classes (Each Item Has Its Own Class)
+- Color Minigame Class
+- Level Class
 ## ATP
 | Step |Procedure |Expected Results |
 |----------------------|:--------------------:|----------------------------------:|
