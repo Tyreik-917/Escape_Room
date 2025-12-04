@@ -5,7 +5,7 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 
 ***
 ## Project Description
-<< Give an overview of your project >
+Its a Puzzle Escape room. 4 Levels, Each level has puzzles that need to be completed in order to go on to the next level.
 ***
 ## GUI Design
 ### Initial Design
@@ -14,11 +14,10 @@ Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
 ![final gui](assets/finalgui.jpg)
 ## Program Design
 ### Features
-1. << Feature 1 >>
-2. << Feature 2 >>
-3. << Feature 3 >>
-4. << Feature 4 >>
-5. << Feature 5 >>
+1. Player Movement with Animations
+2. Interact with items that have special functions
+3. By completion of a level you move on to the next one (until level 4)
+4. Menu Screens (Start, Pause, End)
 ### Classes
 - Player Class
 - Item Class
