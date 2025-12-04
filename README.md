@@ -35,7 +35,9 @@ RESOLUTION NEEDS TO BE SET TO 1920 BY 1080
 ## ATP
 | Step |Procedure |Expected Results |
 |----------------------|:--------------------:|----------------------------------:|
-| 1 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
-| 2 | Make Sure Every Item Is Interactable (Items That Glow) | Item Works When Clicked On/Press E To interact |
-| 3 | Make Sure Menu Works | Menu Works When You Want To Pause The Game/When you start and end the game |
-Etc...
+| 1 | Run the Code | The Code Runs |
+| 2 | From Start Menu Quit | Quits The Game |
+| 3 | Run Code Again | Code Runs |
+| 4 | Use W,A,S,D To Make Sure Movement Works | W,A,S,D Works For Movement |
+| 5 | Make Sure Every Item Is Interactable (Items That Glow) | Item Works When Clicked On/Press E To interact |
+| 6 | Make Sure Menu Works | Menu Works When You Want To Pause The Game/When you start and end the game |
