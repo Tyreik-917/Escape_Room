@@ -1,7 +1,18 @@
 import pygame
 import random
+import os
+import platform
 import ctypes
-ctypes.windll.user32.SetProcessDPIAware()  # for Windows DPI scaling issues
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)

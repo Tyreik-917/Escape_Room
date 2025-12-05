@@ -3,12 +3,19 @@ import time
 import ctypes
 import sys
 import ctypes
+import os
+import platform
+import ctypes
 
-if sys.platform.startswith("win"):
+if platform.system() == "Windows":
     try:
         ctypes.windll.user32.SetProcessDPIAware()
     except Exception:
         pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 pygame.init()
 width, height = 1920, 1080

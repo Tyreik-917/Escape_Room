@@ -3,8 +3,19 @@ import time
 import random
 from color_game import ColorMemoryGame
 from whackamole import WhackAMole
+import os
+import platform
 import ctypes
-ctypes.windll.user32.SetProcessDPIAware()  # for Windows DPI scaling issues
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 pygame.init()
 width, height = 1920, 1080

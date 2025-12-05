@@ -1,8 +1,19 @@
 import pygame
 import random
 import time
+import os
+import platform
 import ctypes
-ctypes.windll.user32.SetProcessDPIAware()
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 class WhackAMole:
     def __init__(self):
@@ -75,7 +86,7 @@ class WhackAMole:
     # ---------------------------------------------------------
 
     def run(self):
-        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
         clock = pygame.time.Clock()
 
         # Setup mole objects

@@ -3,14 +3,25 @@ import pygame_menu
 import time
 from player import Player
 from level import Level
+import os
+import platform
 import ctypes
-ctypes.windll.user32.SetProcessDPIAware()  # for Windows DPI scaling issues
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+    
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 pygame.init()
 
 width, height = 1920, 1080
 center_x, center_y = width//2, height//2
-win = pygame.display.set_mode((width, height))
+win = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 player = Player(width//2, height//2)
 
