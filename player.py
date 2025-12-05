@@ -207,3 +207,4 @@ class Player:
                     item.interact()
                     self.last_interact = now
                     break
+

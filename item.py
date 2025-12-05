@@ -282,8 +282,6 @@ class Statue_m(Item):
             self.is_finished = True
             self.reinteractable = False
 
-
-
 # -------------------------------
 # Female Statue — needs feather
 # -------------------------------
@@ -299,8 +297,6 @@ class Statue_f(Item):
             self.level.puzzles_solved += 1
             self.is_finished = True
             self.reinteractable = False
-
-
 
 # -------------------------------
 # Picture — gives puzzle hint
@@ -698,31 +694,73 @@ class Code_box(Item):
         self.keypad = Keypad(correct_code="6767")   # CHANGE CODE HERE
 
     def interact(self):
-        """Open keypad when player interacts."""
-        self.keypad.open()
         
+        message_1 = "Organizing things is always easier with music"
+        message_2 = "Use 'A' and 'D' to move, 'E' to select a book, and 'Esc' to exit"
+
+        global feather
+        
+        puzzle_active = True
+
+        # Correct order of books
+        correct_order = [
+            'level_4/1.png', 'level_4/2.png', 'level_4/3.png', 'level_4/4.png',
+            'level_4/5.png', 'level_4/6.png', 'level_4/7.png',
+            'level_4/8.png', 'level_4/9.png'
+        ]
+
+        # Sound for each book
+        sound = [
+            'level_1/agartha.mp3', 'level_1/blue_collar.mp3', 'level_1/domer.mp3', 'level_1/eye_of_rah.mp3',
+            'level_1/how_to_aura_farm.mp3', 'level_1/i_need_this.mp3', 'level_1/mi_bombo.mp3',
+            'level_1/thank_you.mp3', 'level_1/the_art_of_67.mp3'
+        ]
+
+        # Randomized book order
+        books = correct_order.copy()
+        #random.shuffle(books)
+
+        # Book visual settings
+        book_width = 60
+        book_height = 60
+        spacing = 5
+
         info = pygame.display.Info()
         width, height = info.current_w, info.current_h
         half_w, half_h = width // 2, height // 2
-        
-        keys_width = 40
-        keys_height = 40
-        
-        keys = ['level_4/1.png','level_4/2.png','level_4/3.png','level_4/4.png','level_4/5.png','level_4/6.png','level_4/7.png','level_4/8.png','level_4/9.png']
-        
-        keys_images = [
+
+        book_images = [
             pygame.transform.scale(
                 pygame.image.load(b).convert_alpha(),
-                (keys_width, keys_height)
-            ) for b in keys
+                (book_width, book_height)
+            ) for b in books
         ]
-        
-        puzzle_img = pygame.image.load("level_4/key_pad.png").convert_alpha()
+
+        # Calculate shelf layout
+        total_width = len(books) * book_width + (len(books) - 1) * spacing
+        start_x = half_w - total_width // 2
+        y_top = half_h
+
+        book_positions = [
+            (start_x + i * (book_width + spacing) + book_width // 2, y_top)
+            for i in range(len(books))
+        ]
+
+        # Puzzle tracking
+        order = []         # Final selected list
+        used_books = set() # Prevent selecting same book twice
+        cursor_index = 0
+
+        # Puzzle background
+        puzzle_img = pygame.image.load("level_4/key_pad.jpeg").convert_alpha()
         puzzle_img = pygame.transform.scale(puzzle_img, (half_w, half_h))
         puzzle_rect = puzzle_img.get_rect(center=(half_w, half_h))
-        
+
         clock = pygame.time.Clock()
-        
+
+        # -------------------------
+        # MAIN PUZZLE LOOP
+        # -------------------------
         while puzzle_active:
             dt = clock.tick(60)
             screen = pygame.display.get_surface()
@@ -733,8 +771,29 @@ class Code_box(Item):
 
             # Draw puzzle backdrop
             screen.blit(puzzle_img, puzzle_rect.topleft)
-            
-            #INPUT HANDLE
+
+            # Draw each book and highlight the cursor
+            for i, img in enumerate(book_images):
+                x, y = book_positions[i]
+                rect = img.get_rect(center=(x, y))
+                screen.blit(img, rect)
+
+                # Highlight current selection
+                if i == cursor_index:
+                    glow = pygame.Surface((book_width, book_height), pygame.SRCALPHA)
+                    glow.fill((255, 255, 255, 100))
+                    screen.blit(glow, rect.topleft)
+
+            # Controls info box
+            box_rect = pygame.Rect(0, height - 120, width, 120)
+            pygame.draw.rect(screen, (255, 255, 255), box_rect)
+            pygame.draw.rect(screen, (0, 0, 0), box_rect, 4)
+
+            font = pygame.font.Font("Main/PressStart2P-Regular.ttf", 25)
+            screen.blit(font.render(message_1, True, (0, 0, 0)), (40, half_h*2 - 100))
+            screen.blit(font.render(message_2, True, (0, 0, 0)), (40, half_h*2 - 45))
+
+            # INPUT HANDLING
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -753,13 +812,32 @@ class Code_box(Item):
 
                         # Move right
                         elif event.key == pygame.K_d:
-                            cursor_index = min(len(keys_images) - 1, cursor_index + 1)
+                            cursor_index = min(len(book_images) - 1, cursor_index + 1)
 
                         # Select book
                         elif event.key == pygame.K_e:
-                            selected_key = keys[cursor_index]
-                            
-                # PUZZLE COMPLETED CORRECTLY
+                            selected_book = books[cursor_index]
+                            target_index = len(order)
+
+                            if selected_book not in used_books:
+                                # Play that book’s sound
+                                pygame.mixer.Sound(sound[correct_order.index(selected_book)]).play()
+                                used_books.add(selected_book)
+                                order.append(selected_book)
+
+                                # Move selected book into final slot
+                                books.pop(cursor_index)
+                                img = book_images.pop(cursor_index)
+
+                                books.insert(target_index, selected_book)
+                                book_images.insert(target_index, img)
+
+                                # Adjust cursor
+                                if cursor_index > target_index:
+                                    cursor_index += 1
+                                cursor_index = max(0, min(cursor_index, len(books) - 1))
+
+            # PUZZLE COMPLETED CORRECTLY
             if order == correct_order:
                 self.show_message("While cleaning you found a feather within a book", 3)
                 feather = True

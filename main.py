@@ -258,7 +258,7 @@ def game():
     level = Level(2, show_message, width, height)
 
     while True:
-        player.resize(0.5) # Delete after placement test
+        #player.resize(0.5) # Delete after placement test
         dt = clock.tick(60)
 
         # Check if player is near an interactable item
