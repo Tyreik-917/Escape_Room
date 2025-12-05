@@ -3,16 +3,29 @@ import pygame_menu
 import time
 from player import Player
 from level import Level
+import os
+import platform
+import ctypes
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 pygame.init()
 
 width, height = 1920, 1080
 center_x, center_y = width//2, height//2
-win = pygame.display.set_mode((width, height))
+win = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 player = Player(width//2, height//2)
 
-ui_font = pygame.font.Font("PressStart2P-Regular.ttf", 32)  # adjust size if needed
+ui_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32)  # adjust size if needed
 current_message = ""
 message_timer = 0
 message_queue = []
@@ -21,19 +34,19 @@ def show_message(text, duration=2, size=32, queue=False):
     if queue and current_message:
         message_queue.append((text, duration, size))
         return
-    ui_font = pygame.font.Font("PressStart2P-Regular.ttf", size)
+    ui_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", size)
     current_message = text
     message_timer = time.time() + duration
 
 def start():
-    pygame.mixer.music.load("start_menu_music.mp3")
+    pygame.mixer.music.load("Assets/start_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
-    background_image = pygame_menu.baseimage.BaseImage("start_background.png")
+    background_image = pygame_menu.baseimage.BaseImage("Assets/start_background.png")
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
-        widget_font = pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32),
         widget_font_size = 40,
         widget_font_color = (255, 255, 255),
         widget_padding = 10,
@@ -46,7 +59,7 @@ def start():
         margin_y=70        # taller box
     )
     menu = pygame_menu.Menu("Welcome", width, height, theme=my_theme)
-    img = menu.add.image("start_select.png")
+    img = menu.add.image("Assets/start_select.png")
     start = menu.add.button("         ", game)
     quit  = menu.add.button("         ", pygame_menu.events.EXIT)
     img.translate(0, 0)
@@ -61,7 +74,7 @@ def unpause():
 def pause():
     global paused 
     paused = True
-    pygame.mixer.music.load("pause_menu_music.mp3")
+    pygame.mixer.music.load("Assets/pause_menu_music.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
     screen_surface = win.copy()
@@ -69,7 +82,7 @@ def pause():
         title=False,
         background_color=(50, 50, 50, 200),   # transparentish
         widget_alignment=pygame_menu.locals.ALIGN_CENTER,
-        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font=pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
@@ -80,7 +93,7 @@ def pause():
         margin_y=75        # taller box
     )
     pause_menu = pygame_menu.Menu(title="Paused", width=width, height=height, theme=my_theme)
-    img = pause_menu.add.image("pause_select.png")
+    img = pause_menu.add.image("Assets/pause_select.png")
     resume = pause_menu.add.button("         ", unpause)
     quit  = pause_menu.add.button("         ", start)
     img.translate(0, 0)
@@ -95,9 +108,9 @@ def pause():
     pygame.mixer.music.stop()
 def end():
     frames = [
-        "end_1.png", "end_2.png", "end_3.png", "end_4.png", "end_5.png",
-        "end_6.png", "end_7.png", "end_8.png", "end_9.png", "end_10.png",
-        "end_11.png", "end_12.png", "end_13.png", "end_14.png", "end_15.png"
+        "Assets/end_1.png", "Assets/end_2.png", "Assets/end_3.png", "Assets/end_4.png", "Assets/end_5.png",
+        "Assets/end_6.png", "Assets/end_7.png", "Assets/end_8.png", "Assets/end_9.png", "Assets/end_10.png",
+        "Assets/end_11.png", "Assets/end_12.png", "Assets/end_13.png", "Assets/end_14.png", "Assets/end_15.png"
     ]
     for frame in frames:
         img = pygame.image.load(frame).convert_alpha()
@@ -111,20 +124,20 @@ def end():
         else:
             pygame.time.delay(300)
         if frame == frames[0]:
-            pygame.mixer.music.load("end_menu_music.mp3")
+            pygame.mixer.music.load("Assets/end_menu_music.mp3")
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1)
         if frame == frames[10]:
             pygame.time.delay(1000)   
     pygame.time.delay(3000)
     screen_surface = win.copy()
-    pygame.image.save(screen_surface, "temp_pause_bg.png")
-    background_image = pygame_menu.baseimage.BaseImage(image_path="temp_pause_bg.png")
+    pygame.image.save(screen_surface, "Assets/temp_pause_bg.png")
+    background_image = pygame_menu.baseimage.BaseImage(image_path="Assets/temp_pause_bg.png")
     my_theme = pygame_menu.Theme(
         title=False,
         background_color=background_image,
         widget_alignment=pygame_menu.locals.ALIGN_CENTER,
-        widget_font=pygame.font.Font("PressStart2P-Regular.ttf", 32),
+        widget_font=pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32),
         widget_font_size=40,
         widget_font_color=(255, 255, 255),
         selection_color=(255, 255, 0),
@@ -135,7 +148,7 @@ def end():
         margin_y=75        # taller box
     )
     end_menu = pygame_menu.Menu("Thank you", width, height, theme=my_theme)
-    img = end_menu.add.image("end_select.png")
+    img = end_menu.add.image("Assets/end_select.png")
     menu= end_menu.add.button("         ", start)
     quit  = end_menu.add.button("         ", pygame_menu.events.EXIT)
     img.translate(0, 0)
@@ -164,8 +177,16 @@ def game():
                 elif event.key == pygame.K_e:
                    player.try_interact(level.items)
         # Movement
-        old = player.handle_input(keys)
-        level.collide_player(old, player.rect)
+        if level.level_id == 1:
+            level_id = 1
+        elif level.level_id == 2:
+            level_id = 2
+        elif level.level_id == 3:
+            level_id = 3
+        elif level.level_id == 4:
+            level_id = 4
+        old, dx, dy = player.handle_input(keys, level_id = level_id)
+        level.collide_player(old, player.rect, dx, dy)
         # Animation
         frame = player.animate()
         level.draw(win, player.rect)
@@ -190,7 +211,7 @@ def game():
         if current_message and time.time() >= message_timer:
             if message_queue:
                 text, duration, size = message_queue.pop(0)
-                ui_font = pygame.font.Font("PressStart2P-Regular.ttf", size)
+                ui_font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", size)
                 current_message = text
                 message_timer = time.time() + duration
             else:

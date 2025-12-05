@@ -1,23 +1,39 @@
 import pygame
 import time
+import os
+import platform
+import ctypes
+
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
+
+pygame.init()
 width, height = 1920, 1080
 center_x, center_y = width//2, height//2
 class Player:
-    def __init__(self, x, y, sprite_size=128):
+    def __init__(self, x, y, sprite_size=height//8.5):
+        self.sprite_size = sprite_size
         self.rect = pygame.Rect(0, 0, sprite_size, sprite_size)
         self.rect.center = (x, y)
-        self.speed = 5
+        self.speed = height//108
 
         # animation
         self.frames = [
-            pygame.image.load("idle.png"),
-            pygame.image.load("walk_1.png"),
-            pygame.image.load("walk_2.png")
+            pygame.image.load("Assets/idle.png"),
+            pygame.image.load("Assets/walk_1.png"),
+            pygame.image.load("Assets/walk_2.png")
         ]
         self.frames = [pygame.transform.scale(f, (sprite_size, sprite_size)) for f in self.frames]
 
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 3/self.speed
         self.moving = False
         self.facing_right = True
 
@@ -26,40 +42,49 @@ class Player:
         self.interact_cooldown = 0.5
 
         # sound
-        self.footstep = pygame.mixer.Sound("footstep.mp3")
-        self.footstep.set_volume(0.3)
+        self.footstep = pygame.mixer.Sound("Assets/footstep.mp3")
 
-    def handle_input(self, keys):
+    def handle_input(self, keys, top_limit=150, level_id = 0):
         old = self.rect.copy()
         self.moving = False
 
+        dx = 0
+        dy = 0
+
         if keys[pygame.K_w]:
-            self.rect.y -= self.speed
+            dy -= self.speed
             self.moving = True
         if keys[pygame.K_s]:
-            self.rect.y += self.speed
+            dy += self.speed
             self.moving = True
         if keys[pygame.K_a]:
-            self.rect.x -= self.speed
+            dx -= self.speed
             self.moving = True
             self.facing_right = False
         if keys[pygame.K_d]:
-            self.rect.x += self.speed
+            dx += self.speed
             self.moving = True
             self.facing_right = True
-    
-        top_limit = 200
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > width:
-            self.rect.right = width
-        if self.rect.top < top_limit:
-            self.rect.top = top_limit
-        if self.rect.bottom > height:
-            self.rect.bottom = height
-            
 
-        return old  # return previous position for collision revert
+        # Apply movement
+        self.rect.x += dx
+        self.rect.y += dy
+
+        # Screen bounds
+        if level_id == 1:
+            top_limit = 150
+        elif level_id == 2:
+            top_limit = 250
+        elif level_id == 3:
+            top_limit = 150
+        elif level_id == 4:
+            top_limit = 150
+        if self.rect.left < 0: self.rect.left = 0
+        if self.rect.right > width: self.rect.right = width
+        if self.rect.top < top_limit: self.rect.top = top_limit
+        if self.rect.bottom > height: self.rect.bottom = height
+
+        return old, dx, dy  # return previous position AND movement deltas
 
     def animate(self):
         if self.moving:
@@ -87,6 +112,7 @@ class Player:
         for item in items:
             if item.is_active and item.is_near(self.rect) and item.interactable and item.reinteractable:
                 if getattr(item, "can_interact_now", False):
+                    pygame.mixer.stop()
                     item.interact()
                     self.last_interact = now
                     break
