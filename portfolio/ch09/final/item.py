@@ -138,7 +138,7 @@ class Knife(Item):
 
 class Shovel(Item):
     def interact(self):
-        self.show_message(f"You grabed the shovel!", 3)
+        self.show_message(f"You grabbed the shovel!", 3)
         global has_shovel
         has_shovel = True
         pygame.mixer.Sound("Assets/shovel.mp3").play()
@@ -393,7 +393,7 @@ class Red_Mouse(Item):
         cheese_status = globals().get('has_cheese', False)
 
         if not cheese_status:
-            self.show_message("Can you find my toy cheese and enter the password into the code box for me buddy", 3)
+            self.show_message("Can you find my toy cheese and enter the password into the code box for me buddy", 3, size = 28)
         else:
             self.show_message("You gave the cheese to Bobby. He seems satisfied.", 3)
             pygame.mixer.Sound("Assets/hehe.mp3").play()
