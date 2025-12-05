@@ -44,7 +44,7 @@ class WhackAMole:
         self.hole_img = pygame.image.load("Assets/hole.png").convert_alpha()
         self.mole_img = pygame.image.load("Assets/mole.png").convert_alpha()
         self.bg_img = pygame.image.load("Assets/basement.png").convert_alpha()
-        self.bg_img = pygame.transform.scale(self.bg_img, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
+        self.bg_img = pygame.transform.scale(self.bg_img, (self.SCREEN_WIDTH*1.5, self.SCREEN_HEIGHT*1.5))
 
         self.whack_sound = pygame.mixer.Sound("Assets/whack.mp3")
         self.whack_sound.set_volume(0.25)
@@ -164,6 +164,14 @@ class WhackAMole:
 
             screen.blit(score_text, (50, 20))
             screen.blit(time_text, (self.SCREEN_WIDTH - time_text.get_width() - 50, 20))
+            screen = pygame.display.get_surface()
+            width, height = self.SCREEN_WIDTH, self.SCREEN_HEIGHT
+            message_1 = "Click on the moles to whack them!"
+            box_rect = pygame.Rect(0, height - 120, width, 120)
+            pygame.draw.rect(screen, (255, 255, 255), box_rect)
+            pygame.draw.rect(screen, (0, 0, 0), box_rect, 4)
+            font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32)
+            screen.blit(font.render(message_1, True, (0, 0, 0)),(40, height - 80))
 
             pygame.display.flip()
             clock.tick(self.FPS)
