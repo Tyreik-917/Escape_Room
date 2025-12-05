@@ -27,6 +27,7 @@ Its a Puzzle Escape room. 4 Levels, Each level has puzzles that need to be compl
 - Item Class
 - Specific Item Classes (Each Item Has Its Own Class)
 - Color Minigame Class
+Whackamole Class
 - Level Class
 ## ATP
 | Step |Procedure |Expected Results |
