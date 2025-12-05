@@ -1,7 +1,7 @@
 # Escape
 ## CS110 A0/B1 Final Project Fall 2025
 ## Team Members
-Jeremy Segal | Tyreiik Rogers | Gavriel Guenniche | Christian Chun
+Jeremy Segal | Tyreik Rogers | Gavriel Guenniche | Christian Chun
 
 ***
 ## Project Description
