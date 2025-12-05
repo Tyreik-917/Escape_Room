@@ -1,7 +1,15 @@
 import pygame
 import time
 import ctypes
-ctypes.windll.user32.SetProcessDPIAware()  # for Windows DPI scaling issues
+import sys
+import ctypes
+
+if sys.platform.startswith("win"):
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
 pygame.init()
 width, height = 1920, 1080
 center_x, center_y = width//2, height//2
