@@ -44,7 +44,7 @@ class WhackAMole:
         self.hole_img = pygame.image.load("Assets/hole.png").convert_alpha()
         self.mole_img = pygame.image.load("Assets/mole.png").convert_alpha()
         self.bg_img = pygame.image.load("Assets/basement.png").convert_alpha()
-        self.bg_img = pygame.transform.scale(self.bg_img, (self.SCREEN_WIDTH*1.5, self.SCREEN_HEIGHT*1.5), pygame.FULLSCREEN)
+        self.bg_img = pygame.transform.scale(self.bg_img, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
 
         self.whack_sound = pygame.mixer.Sound("Assets/whack.mp3")
         self.whack_sound.set_volume(0.25)
