@@ -162,7 +162,7 @@ def game():
     global current_message, message_timer, message_queue, ui_font
     pygame.mixer.music.stop()
     player = Player(center_x, center_y)
-    level = Level(3, show_message)
+    level = Level(1, show_message)
     
     while True:
         dt = clock.tick(60)
