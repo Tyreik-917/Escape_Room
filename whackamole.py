@@ -1,7 +1,19 @@
 import pygame
 import random
 import time
+import os
+import platform
+import ctypes
 
+if platform.system() == "Windows":
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+if platform.system() == "Darwin":
+    os.environ["SDL_HINT_VIDEO_HIGHDPI_DISABLED"] = "0"
+    os.environ["PYGAME_FORCE_HIGHDPI"] = "1"
 
 class WhackAMole:
     def __init__(self):
@@ -22,24 +34,25 @@ class WhackAMole:
 
         # Hole coordinates
         self.HOLE_POSITIONS = [
-            (150, 450), (400, 450), (650, 450),
-            (150, 300), (400, 300), (650, 300),
-            (150, 150), (400, 150), (650, 150)
+            (750, 700), (950, 700), (1150, 700),
+            (750, 600), (950, 600), (1150, 600),
+            (750, 800), (950, 800), (1150, 800)
         ]
         self.MOLE_RADIUS = 30
 
         # Load assets once
-        self.hole_img = pygame.image.load("level_3/hole.png").convert_alpha()
-        self.mole_img = pygame.image.load("level_3/mole.png").convert_alpha()
-        self.bg_img = pygame.image.load("level_3/basement.png").convert_alpha()
+        self.hole_img = pygame.image.load("Assets/hole.png").convert_alpha()
+        self.mole_img = pygame.image.load("Assets/mole.png").convert_alpha()
+        self.bg_img = pygame.image.load("Assets/basement.png").convert_alpha()
+        self.bg_img = pygame.transform.scale(self.bg_img, (self.SCREEN_WIDTH*1.5, self.SCREEN_HEIGHT*1.5))
 
-        self.whack_sound = pygame.mixer.Sound("level_3/whack.mp3")
+        self.whack_sound = pygame.mixer.Sound("Assets/whack.mp3")
         self.whack_sound.set_volume(0.25)
 
-        self.taunt_sound = pygame.mixer.Sound("level_3/hehe.mp3")
+        self.taunt_sound = pygame.mixer.Sound("Assets/hehe.mp3")
         self.taunt_sound.set_volume(0.25)
 
-        self.font = pygame.font.Font("Main/PressStart2P-Regular.ttf", 32)
+        self.font = pygame.font.Font("Assets/PressStart2P-Regular.ttf", 32)
 
     # ---------------------------------------------------------
     # Mole Sprite Class
@@ -73,7 +86,7 @@ class WhackAMole:
     # ---------------------------------------------------------
 
     def run(self):
-        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
         clock = pygame.time.Clock()
 
         # Setup mole objects
@@ -138,7 +151,7 @@ class WhackAMole:
                 self.moles.update()
 
             # DRAWING
-            screen.blit(self.bg_img, (-150, -300))
+            screen.blit(self.bg_img, (0, 0))
 
             for x, y in self.HOLE_POSITIONS:
                 rect = self.hole_img.get_rect(center=(x, y + 20))
